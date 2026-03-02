@@ -1,9 +1,9 @@
 package com.cale.demo.services;
 
+import com.cale.demo.exepciones.RecursoNoEncontradoExepcion;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,8 +22,9 @@ public class UsuarioService {
         return usuarioRepository.save(usuarioModel);
     }
 
-    public Optional<UsuarioModel> obtenerPorId(Long id) {
-        return usuarioRepository.findById(id);
+    public UsuarioModel obtenerPorId(Long id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoExepcion("Usuario no encontrado con ID: " + id));
     }
 
     public ArrayList<UsuarioModel> obtenerUsuariosPorPrioridad(Integer prioridad) {

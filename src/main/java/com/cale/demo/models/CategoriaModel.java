@@ -5,19 +5,16 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "usuario")
-public class UsuarioModel {
+@Table(name = "categoria")
+public class CategoriaModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
     private String nombre;
-    private String email;
-    private Integer prioridad;
-    private String apellido;
 
-    @OneToMany(mappedBy = "usuario")
+    @ManyToMany(mappedBy = "categorias")
     private List<PostModel> posts;
 
     public List<PostModel> getPosts() {
@@ -26,14 +23,6 @@ public class UsuarioModel {
 
     public void setPosts(List<PostModel> posts) {
         this.posts = posts;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
     }
 
     public Long getId() {
@@ -50,21 +39,5 @@ public class UsuarioModel {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Integer getPrioridad() {
-        return prioridad;
-    }
-
-    public void setPrioridad(Integer prioridad) {
-        this.prioridad = prioridad;
     }
 }
