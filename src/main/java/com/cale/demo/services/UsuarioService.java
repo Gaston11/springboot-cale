@@ -28,15 +28,14 @@ public class UsuarioService {
     }
 
     public ArrayList<UsuarioModel> obtenerUsuariosPorPrioridad(Integer prioridad) {
-        return (ArrayList<UsuarioModel>) usuarioRepository.findByPrioridad(prioridad);
+        return Optional.of((ArrayList<UsuarioModel>) usuarioRepository.findByPrioridad(prioridad))
+                .filter(ArrayList -> !ArrayList.isEmpty())
+                .orElseThrow(() -> new RecursoNoEncontradoExepcion("Usuario/s no encontrado con prioridad: " + prioridad));
     }
 
-    public boolean eliminarUsuario(Long id) {
-        try{
+    public void eliminarUsuario(Long id) {
+        if (this.obtenerPorId(id) != null) {
             usuarioRepository.deleteById(id);
-            return true; // TODO revisar
-        }catch(Exception e){
-            return false;
         }
     }
 }
