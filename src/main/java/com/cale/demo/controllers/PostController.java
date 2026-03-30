@@ -2,6 +2,7 @@ package com.cale.demo.controllers;
 
 import com.cale.demo.models.PostModel;
 import com.cale.demo.services.PostService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class PostController {
     }
 
     @PostMapping
-    public PostModel guardarPost(@RequestBody PostModel postModel){
+    public PostModel guardarPost(@Valid @RequestBody PostModel postModel){
         return postService.guardarPost(postModel);
     }
 

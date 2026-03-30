@@ -1,5 +1,6 @@
 package com.cale.demo.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -30,6 +31,7 @@ public class UsuarioModel {
     private String apellido;
 
     @OneToMany(mappedBy = "usuario")
+    @JsonIgnore
     private List<PostModel> posts;
 
     public List<PostModel> getPosts() {
