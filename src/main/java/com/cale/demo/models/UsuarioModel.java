@@ -1,6 +1,9 @@
 package com.cale.demo.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -12,9 +15,18 @@ public class UsuarioModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
+
+    @NotNull
+    @NotBlank
     private String nombre;
+    @NotNull
+    @NotBlank
+    @Email
     private String email;
+    @NotNull
     private Integer prioridad;
+    @NotNull
+    @NotBlank
     private String apellido;
 
     @OneToMany(mappedBy = "usuario")

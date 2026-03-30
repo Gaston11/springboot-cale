@@ -1,8 +1,13 @@
 package com.cale.demo.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "post")
@@ -12,7 +17,13 @@ public class PostModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
+
+    @NotNull
+    @NotBlank
     private String titulo;
+
+    @NotNull
+    @NotBlank
     private String descripcion;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -25,7 +36,7 @@ public class PostModel {
             joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "categoria_id", referencedColumnName = "id")
     )
-    private List<CategoriaModel> categorias;
+    private Set<CategoriaModel> categorias = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -51,14 +62,12 @@ public class PostModel {
         this.descripcion = descripcion;
     }
 
-    public List<CategoriaModel> getCategorias() {
+    public Set<CategoriaModel> getCategorias() {
         return categorias;
     }
-
-    public void setCategorias(ArrayList<CategoriaModel> categorias) {
+    public void setCategorias(Set<CategoriaModel> categorias) {
         this.categorias = categorias;
     }
-
     public UsuarioModel getUsuario() {
         return usuario;
     }

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/post")
@@ -26,17 +25,12 @@ public class PostController {
     }
 
     @GetMapping(path = "/{id}")
-    public Optional<PostModel> obtenerPostPorID(@PathVariable("id") Long id){
+    public PostModel obtenerPostPorID(@PathVariable("id") Long id){
         return postService.obtenerPostPorID(id);
     }
 
     @DeleteMapping(path = "/{id}")
-    public String eliminarPost(@PathVariable("id") Long id){
-        boolean ok = postService.eliminarPost(id);
-        if(ok){
-            return "Post eliminado con id: " + id;
-        }else {
-            return "Post no encontrado con id: " + id;
-        }
+    public void eliminarPost(@PathVariable("id") Long id){
+        postService.eliminarPost(id);
     }
 }
