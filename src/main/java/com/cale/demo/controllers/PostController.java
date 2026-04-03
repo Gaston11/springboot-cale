@@ -1,5 +1,7 @@
 package com.cale.demo.controllers;
 
+import com.cale.demo.dtos.PostRequestDto;
+import com.cale.demo.dtos.PostResponseDto;
 import com.cale.demo.models.PostModel;
 import com.cale.demo.services.PostService;
 import jakarta.validation.Valid;
@@ -21,8 +23,8 @@ public class PostController {
     }
 
     @PostMapping
-    public PostModel guardarPost(@Valid @RequestBody PostModel postModel){
-        return postService.guardarPost(postModel);
+    public PostResponseDto guardarPost(@Valid @RequestBody PostRequestDto postRequestDto) {
+        return postService.guardarPost(postRequestDto);
     }
 
     @GetMapping(path = "/{id}")

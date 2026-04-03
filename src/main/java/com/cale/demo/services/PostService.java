@@ -1,5 +1,7 @@
 package com.cale.demo.services;
 
+import com.cale.demo.dtos.PostRequestDto;
+import com.cale.demo.dtos.PostResponseDto;
 import com.cale.demo.exepciones.RecursoNoEncontradoExepcion;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.models.PostModel;
@@ -11,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -32,33 +36,34 @@ public class PostService {
         return (ArrayList<PostModel>) postRepository.findAll();
     }
 
-    public PostModel guardarPost(PostModel postModel) {
-        Set<CategoriaModel> categoriasFinales = new HashSet<>();
+    public PostResponseDto guardarPost(PostRequestDto postRequestDto) {
+        PostModel postModel = new PostModel();
+        postModel.setTitulo(postRequestDto.getTitulo());
+        postModel.setDescripcion(postRequestDto.getDescripcion());
 
-        if (postModel.getUsuario() == null || postModel.getUsuario().getId() == null) {
-            throw new RuntimeException("El usuario es obligatorio");
-        }
+        UsuarioModel usuarioModel = new UsuarioModel();
+        usuarioModel = usuarioRepository.findById(postRequestDto.getUsuarioId())
+                .orElseThrow( ()-> new RuntimeException("Usuario no encontrado con id " + postRequestDto.getUsuarioId()));
 
-        UsuarioModel usuarioBD = usuarioRepository.findById(postModel.getUsuario().getId())
-                .orElseThrow(() -> new RecursoNoEncontradoExepcion(
-                        "Usuario no encontrado con ID: " + postModel.getUsuario().getId()
-                ));
+        postModel.setUsuario(usuarioModel);
 
-        if (postModel.getCategorias() != null && !postModel.getCategorias().isEmpty()) {
-            for (CategoriaModel categoria : postModel.getCategorias()) {
-                if (categoria.getId() != null) {
-                    CategoriaModel categoriaBD = categoriaRepository.findById(categoria.getId())
-                            .orElseThrow(() -> new RecursoNoEncontradoExepcion(
-                                    "Categoría no encontrada con ID: " + categoria.getId()
-                            ));
-                    categoriasFinales.add(categoriaBD);
-                }
-            }
-        }
+        Set<CategoriaModel> categorias = new HashSet<>((Collection) categoriaRepository.findAllById(postRequestDto.getCategoriasId()));
 
-        postModel.setUsuario(usuarioBD);
-        postModel.setCategorias(categoriasFinales);
-        return postRepository.save(postModel);
+        postModel.setCategorias(categorias);
+
+        return convertirADto(postRepository.save(postModel));
+    }
+
+    private PostResponseDto convertirADto(PostModel postModel) {
+        PostResponseDto postResponseDto = new PostResponseDto();
+        postResponseDto.setId(postModel.getId());
+        postResponseDto.setTitulo(postModel.getTitulo());
+        postResponseDto.setDescripcion(postModel.getDescripcion());
+        postResponseDto.setNombreUsuario(postModel.getUsuario().getNombre());
+        postResponseDto.setNombreCategorias(postModel.getCategorias()
+        .stream().map(c -> c.getNombre()).collect(Collectors.toSet()));
+
+        return postResponseDto;
     }
 
     public PostModel obtenerPostPorID(Long id) {
