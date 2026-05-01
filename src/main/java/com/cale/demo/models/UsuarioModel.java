@@ -30,7 +30,7 @@ public class UsuarioModel {
     @NotBlank
     private String apellido;
 
-    @OneToMany(mappedBy = "usuario")
+    @OneToMany(mappedBy = "usuario",cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonIgnore
     private List<PostModel> posts;
 

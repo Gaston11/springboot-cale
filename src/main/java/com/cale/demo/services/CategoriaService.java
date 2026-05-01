@@ -25,13 +25,9 @@ public class CategoriaService {
         return categoriaRepository.findById(id);
     }
 
-    public boolean eliminarCategoria(Long id) {
-        try {
+    public void eliminarCategoria(Long id) {
+        if (categoriaRepository.existsById(id)) {
             categoriaRepository.deleteById(id);
-            return true; //TODO revisar
-        }catch(Exception e) {
-            return false;
         }
-
     }
 }

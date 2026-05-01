@@ -30,14 +30,9 @@ public class CategoriaController {
         return categoriaService.obtenerCategoriaPorID(id);
     }
 
-    @DeleteMapping(path = "/id")
-    public String eliminarCategoria(@PathVariable("id") Long id){
-        boolean ok = categoriaService.eliminarCategoria(id);
-        if(ok){
-            return "Categoria eliminado con id: " + id;
-        }else {
-            return "Categoria no encontrado con id: " + id;
-        }
+    @DeleteMapping(path = "/{id}")
+    public void eliminarCategoria(@PathVariable("id") Long id){
+        categoriaService.eliminarCategoria(id);
     }
 
 }
