@@ -23,12 +23,20 @@ public class UsuarioModel {
     @NotNull
     @NotBlank
     @Email
+    @Column(unique = true)
     private String email;
     @NotNull
     private Integer prioridad;
     @NotNull
     @NotBlank
     private String apellido;
+
+    @NotNull
+    @NotBlank
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Rol rol;
 
     @OneToMany(mappedBy = "usuario",cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonIgnore
@@ -80,5 +88,21 @@ public class UsuarioModel {
 
     public void setPrioridad(Integer prioridad) {
         this.prioridad = prioridad;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
     }
 }

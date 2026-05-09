@@ -1,6 +1,8 @@
 package com.cale.demo.services;
 
+import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.exepciones.RecursoNoEncontradoExepcion;
+import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
+
+
 
 @Service
 public class UsuarioService {

@@ -1,5 +1,6 @@
 package com.cale.demo.controllers;
 
+import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,4 +38,5 @@ public class UsuarioController {
     public void eliminarUsuarioPorId(@PathVariable("id") Long id){
         usuarioService.eliminarUsuario(id);
     }
+
 }
