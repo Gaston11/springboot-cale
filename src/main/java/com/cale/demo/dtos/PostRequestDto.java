@@ -11,8 +11,8 @@ public class PostRequestDto {
     private String titulo;
     @NotBlank
     private String descripcion;
-    @NotNull
-    private Long usuarioId;
+    //@NotNull
+    //private Long usuarioId;
     @NotNull
     private Set<Long> categoriasIds;
 
@@ -24,6 +24,7 @@ public class PostRequestDto {
         this.categoriasIds = categoriasId;
     }
 
+    /*
     public Long getUsuarioId() {
         return usuarioId;
     }
@@ -31,6 +32,8 @@ public class PostRequestDto {
     public void setUsuarioId(Long usuarioId) {
         this.usuarioId = usuarioId;
     }
+
+     */
 
     public String getDescripcion() {
         return descripcion;

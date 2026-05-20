@@ -23,7 +23,9 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable()) // desactiva csrf para APIS
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // permite register/login
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/post/**").hasAnyRole("USER","ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

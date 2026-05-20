@@ -10,12 +10,11 @@ import com.cale.demo.repositories.CategoriaRepository;
 import com.cale.demo.repositories.PostRepository;
 import com.cale.demo.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,19 +35,17 @@ public class PostService {
         return (ArrayList<PostModel>) postRepository.findAll();
     }
 
-    public PostResponseDto guardarPost(PostRequestDto postRequestDto) {
+    public PostResponseDto guardarPost(PostRequestDto postRequestDto, String email) {
         PostModel postModel = new PostModel();
         postModel.setTitulo(postRequestDto.getTitulo());
         postModel.setDescripcion(postRequestDto.getDescripcion());
 
         UsuarioModel usuarioModel = new UsuarioModel();
-        usuarioModel = usuarioRepository.findById(postRequestDto.getUsuarioId())
-                .orElseThrow( ()-> new RuntimeException("Usuario no encontrado con id " + postRequestDto.getUsuarioId()));
+        usuarioModel = usuarioRepository.findByEmail(email)
+                .orElseThrow( ()-> new RuntimeException("Usuario no encontrado con email " + email));
 
         postModel.setUsuario(usuarioModel);
-
         Set<CategoriaModel> categorias = new HashSet<>((Collection) categoriaRepository.findAllById(postRequestDto.getCategoriasId()));
-
         postModel.setCategorias(categorias);
 
         return convertirADto(postRepository.save(postModel));
