@@ -41,4 +41,9 @@ public class PostController {
     public void eliminarPost(@PathVariable("id") Long id){
         postService.eliminarPost(id);
     }
+
+    @PutMapping(path = "/{id}")
+    public PostResponseDto actualizarPost( @PathVariable("id") Long id, @Valid @RequestBody PostRequestDto postRequestDto) {
+        return postService.actualizarPost(postRequestDto,id);
+    }
 }
