@@ -46,7 +46,7 @@ public class PostService {
 
         UsuarioModel usuarioModel = new UsuarioModel();
         usuarioModel = usuarioRepository.findByEmail(email)
-                .orElseThrow( ()-> new RuntimeException("Usuario no encontrado con email " + email));
+                .orElseThrow( ()-> new RecursoNoEncontradoExepcion("Usuario no encontrado con email " + email));
 
         postModel.setUsuario(usuarioModel);
         Set<CategoriaModel> categorias = new HashSet<>((Collection) categoriaRepository.findAllById(postRequestDto.getCategoriasId()));
@@ -85,14 +85,14 @@ public class PostService {
 
         if ((!postActual.getUsuario().getId().equals(usuarioModel.getId()))
                 && (usuarioModel.getRol() != Rol.ADMIN) ) {
-            throw new RuntimeException("No puedes editar este post");
+            throw new RecursoNoEncontradoExepcion("No puedes editar este post");
         }
 
         postActual.setTitulo(postRequestDto.getTitulo());
         postActual.setDescripcion(postRequestDto.getDescripcion());
         Set<CategoriaModel> categoriaModels = postRequestDto.getCategoriasId().stream().
                 map(idCategoria -> categoriaRepository.findById(idCategoria).
-                        orElseThrow(() -> new RuntimeException("Categoria no encontrada"))).
+                        orElseThrow(() -> new RecursoNoEncontradoExepcion("Categoria no encontrada"))).
                 collect(Collectors.toSet());
         postActual.setCategorias(categoriaModels);
 

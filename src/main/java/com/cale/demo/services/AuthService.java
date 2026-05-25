@@ -45,7 +45,7 @@ public class AuthService {
                 .orElseThrow(() -> new RecursoNoEncontradoExepcion("Usuario no encontrado"));
 
         if(!passwordEncoder.matches(loginRequest.getPassword(), usuarioModel.getPassword())){
-            throw new RuntimeException("Contraseña incorrecta");
+            throw new RecursoNoEncontradoExepcion("Contraseña incorrecta");
         }
 
         return jwtService.generarToken(usuarioModel.getEmail());
