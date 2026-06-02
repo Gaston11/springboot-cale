@@ -20,7 +20,7 @@ public class PostController {
     private PostService postService;
 
     @GetMapping
-    public ArrayList<PostModel> obtenerPosts() {
+    public ArrayList<PostResponseDto> obtenerPosts() {
         return postService.obtenerPosts();
     }
 
@@ -33,7 +33,7 @@ public class PostController {
     }
 
     @GetMapping(path = "/{id}")
-    public PostModel obtenerPostPorID(@PathVariable("id") Long id){
+    public PostResponseDto obtenerPostPorID(@PathVariable("id") Long id){
         return postService.obtenerPostPorID(id);
     }
 

@@ -7,7 +7,7 @@ public class PostResponseDto {
     private Long id;
     private String titulo;
     private String descripcion;
-    private String nombreUsuario;
+    private UsuarioResponseDto usuario;
     private Set<String> nombreCategorias;
 
     public Long getId() {
@@ -34,12 +34,12 @@ public class PostResponseDto {
         this.descripcion = descripcion;
     }
 
-    public String getNombreUsuario() {
-        return nombreUsuario;
+    public UsuarioResponseDto getUsuarioDto() {
+        return usuario;
     }
 
-    public void setNombreUsuario(String nombreUsuario) {
-        this.nombreUsuario = nombreUsuario;
+    public void setUsuario(UsuarioResponseDto usuario) {
+        this.usuario = usuario;
     }
 
     public Set<String> getNombreCategorias() {

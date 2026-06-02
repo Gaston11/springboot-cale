@@ -2,6 +2,7 @@ package com.cale.demo.services;
 
 import com.cale.demo.dtos.PostRequestDto;
 import com.cale.demo.dtos.PostResponseDto;
+import com.cale.demo.dtos.UsuarioResponseDto;
 import com.cale.demo.exepciones.RecursoNoEncontradoExepcion;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.models.PostModel;
@@ -12,8 +13,6 @@ import com.cale.demo.repositories.PostRepository;
 import com.cale.demo.repositories.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -35,8 +34,12 @@ public class PostService {
         this.currentUserService = currentUserService;
     }
 
-    public ArrayList<PostModel> obtenerPosts() {
-        return (ArrayList<PostModel>) postRepository.findAll();
+    public ArrayList<PostResponseDto> obtenerPosts() {
+        ArrayList<PostResponseDto> posts = new ArrayList<>();
+        for (PostModel postModel : postRepository.findAll()) {
+            posts.add(this.convertirADto(postModel));
+        }
+        return posts;
     }
 
     public PostResponseDto guardarPost(PostRequestDto postRequestDto, String email) {
@@ -56,18 +59,25 @@ public class PostService {
     }
 
     private PostResponseDto convertirADto(PostModel postModel) {
+        UsuarioResponseDto usuarioResponseDto = new UsuarioResponseDto();
         PostResponseDto postResponseDto = new PostResponseDto();
         postResponseDto.setId(postModel.getId());
         postResponseDto.setTitulo(postModel.getTitulo());
         postResponseDto.setDescripcion(postModel.getDescripcion());
-        postResponseDto.setNombreUsuario(postModel.getUsuario().getNombre());
+        usuarioResponseDto.setNombre(postModel.getUsuario().getNombre());
+        usuarioResponseDto.setId(postModel.getUsuario().getId());
+        postResponseDto.setUsuario(usuarioResponseDto);
         postResponseDto.setNombreCategorias(postModel.getCategorias()
         .stream().map(c -> c.getNombre()).collect(Collectors.toSet()));
 
         return postResponseDto;
     }
 
-    public PostModel obtenerPostPorID(Long id) {
+    public PostResponseDto obtenerPostPorID(Long id) {
+        return convertirADto(obtenerPostModelPorID(id));
+    }
+
+    private PostModel obtenerPostModelPorID(Long id) {
         return postRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoExepcion("Post no encontrado con ID: " + id));
     }
@@ -81,7 +91,7 @@ public class PostService {
     public PostResponseDto actualizarPost(@Valid PostRequestDto postRequestDto, Long id) {
         UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
 
-        PostModel postActual = obtenerPostPorID(id);
+        PostModel postActual = obtenerPostModelPorID(id);
 
         if ((!postActual.getUsuario().getId().equals(usuarioModel.getId()))
                 && (usuarioModel.getRol() != Rol.ADMIN) ) {
