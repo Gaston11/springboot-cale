@@ -3,7 +3,9 @@ package com.cale.demo.services;
 import com.cale.demo.dtos.PostRequestDto;
 import com.cale.demo.dtos.PostResponseDto;
 import com.cale.demo.dtos.UsuarioResponseDto;
-import com.cale.demo.exepciones.RecursoNoEncontradoExepcion;
+import com.cale.demo.exepciones.NoAutorizadoException;
+import com.cale.demo.exepciones.OperacionInvalidaException;
+import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.models.PostModel;
 import com.cale.demo.models.Rol;
@@ -49,10 +51,16 @@ public class PostService {
 
         UsuarioModel usuarioModel = new UsuarioModel();
         usuarioModel = usuarioRepository.findByEmail(email)
-                .orElseThrow( ()-> new RecursoNoEncontradoExepcion("Usuario no encontrado con email " + email));
+                .orElseThrow( ()-> new RecursoNoEncontradoException("Usuario no encontrado con email " + email));
 
         postModel.setUsuario(usuarioModel);
-        Set<CategoriaModel> categorias = new HashSet<>((Collection) categoriaRepository.findAllById(postRequestDto.getCategoriasId()));
+
+        Set<Long> categoriaModelSet = postRequestDto.getCategoriasId();
+        if (categoriaModelSet.isEmpty()) {
+            throw new OperacionInvalidaException("El post debe tener al menos una categoria");
+        }
+
+        Set<CategoriaModel> categorias = new HashSet<>((Collection) categoriaRepository.findAllById(categoriaModelSet));
         postModel.setCategorias(categorias);
 
         return convertirADto(postRepository.save(postModel));
@@ -79,7 +87,7 @@ public class PostService {
 
     private PostModel obtenerPostModelPorID(Long id) {
         return postRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoExepcion("Post no encontrado con ID: " + id));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Post no encontrado con ID: " + id));
     }
 
     public void eliminarPost(Long id) {
@@ -95,14 +103,14 @@ public class PostService {
 
         if ((!postActual.getUsuario().getId().equals(usuarioModel.getId()))
                 && (usuarioModel.getRol() != Rol.ADMIN) ) {
-            throw new RecursoNoEncontradoExepcion("No puedes editar este post");
+            throw new NoAutorizadoException("No puedes editar este post");
         }
 
         postActual.setTitulo(postRequestDto.getTitulo());
         postActual.setDescripcion(postRequestDto.getDescripcion());
         Set<CategoriaModel> categoriaModels = postRequestDto.getCategoriasId().stream().
                 map(idCategoria -> categoriaRepository.findById(idCategoria).
-                        orElseThrow(() -> new RecursoNoEncontradoExepcion("Categoria no encontrada"))).
+                        orElseThrow(() -> new RecursoNoEncontradoException("Categoria no encontrada: " + idCategoria))).
                 collect(Collectors.toSet());
         postActual.setCategorias(categoriaModels);
 

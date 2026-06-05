@@ -1,8 +1,6 @@
 package com.cale.demo.services;
 
-import com.cale.demo.dtos.RegisterRequest;
-import com.cale.demo.exepciones.RecursoNoEncontradoExepcion;
-import com.cale.demo.models.Rol;
+import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +26,13 @@ public class UsuarioService {
 
     public UsuarioModel obtenerPorId(Long id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoExepcion("Usuario no encontrado con ID: " + id));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado con ID: " + id));
     }
 
     public ArrayList<UsuarioModel> obtenerUsuariosPorPrioridad(Integer prioridad) {
         return Optional.of((ArrayList<UsuarioModel>) usuarioRepository.findByPrioridad(prioridad))
                 .filter(ArrayList -> !ArrayList.isEmpty())
-                .orElseThrow(() -> new RecursoNoEncontradoExepcion("Usuario/s no encontrado con prioridad: " + prioridad));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario/s no encontrado con prioridad: " + prioridad));
     }
 
     public void eliminarUsuario(Long id) {
