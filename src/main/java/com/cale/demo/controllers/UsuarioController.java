@@ -1,9 +1,13 @@
 package com.cale.demo.controllers;
 
+import com.cale.demo.dtos.PageResponse;
 import com.cale.demo.dtos.RegisterRequest;
+import com.cale.demo.dtos.UsuarioResponseDto;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -15,8 +19,8 @@ public class UsuarioController {
     UsuarioService usuarioService;
 
     @GetMapping
-    public ArrayList<UsuarioModel> obtenerUsuarios(){
-        return usuarioService.obtenerUsuarios();
+    public PageResponse<UsuarioResponseDto> obtenerUsuarios(Pageable pageable) {
+        return usuarioService.obtenerUsuarios(pageable);
     }
 
     @PostMapping

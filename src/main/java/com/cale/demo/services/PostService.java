@@ -1,5 +1,6 @@
 package com.cale.demo.services;
 
+import com.cale.demo.dtos.PageResponse;
 import com.cale.demo.dtos.PostRequestDto;
 import com.cale.demo.dtos.PostResponseDto;
 import com.cale.demo.dtos.UsuarioResponseDto;
@@ -15,6 +16,8 @@ import com.cale.demo.repositories.PostRepository;
 import com.cale.demo.repositories.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,12 +39,16 @@ public class PostService {
         this.currentUserService = currentUserService;
     }
 
-    public ArrayList<PostResponseDto> obtenerPosts() {
-        ArrayList<PostResponseDto> posts = new ArrayList<>();
-        for (PostModel postModel : postRepository.findAll()) {
-            posts.add(this.convertirADto(postModel));
-        }
-        return posts;
+    public PageResponse<PostResponseDto> obtenerPosts(Pageable pageable) {
+        Page<PostModel> pagina = postRepository.findAll(pageable);
+
+        return new PageResponse<>(
+                pagina.getContent().stream().map(this::convertirADto).toList(),
+                pagina.getNumber(),
+                pagina.getSize(),
+                pagina.getTotalElements(),
+                pagina.getTotalPages()
+        );
     }
 
     public PostResponseDto guardarPost(PostRequestDto postRequestDto, String email) {

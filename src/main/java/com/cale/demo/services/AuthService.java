@@ -2,6 +2,7 @@ package com.cale.demo.services;
 
 import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.RegisterRequest;
+import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.exepciones.NoAutorizadoException;
 import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
@@ -47,7 +48,7 @@ public class AuthService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
 
         if(!passwordEncoder.matches(loginRequest.getPassword(), usuarioModel.getPassword())){
-            throw new NoAutorizadoException("Contraseña incorrecta");
+            throw new CredencialesInvalidasException("Contraseña incorrecta");
         }
 
         return jwtService.generarToken(usuarioModel.getEmail());
