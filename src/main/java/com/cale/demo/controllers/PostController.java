@@ -3,11 +3,9 @@ package com.cale.demo.controllers;
 import com.cale.demo.dtos.PageResponse;
 import com.cale.demo.dtos.PostRequestDto;
 import com.cale.demo.dtos.PostResponseDto;
-import com.cale.demo.models.PostModel;
 import com.cale.demo.services.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,8 +21,8 @@ public class PostController {
     private PostService postService;
 
     @GetMapping
-    public PageResponse<PostResponseDto> obtenerPosts(Pageable pageable) {
-        return postService.obtenerPosts(pageable);
+    public PageResponse<PostResponseDto> obtenerPosts(Pageable pageable, @RequestParam(required = false) String titulo, @RequestParam(required = false) Long usuarioId) {
+        return postService.obtenerPosts(pageable, titulo, usuarioId);
     }
 
     @PostMapping

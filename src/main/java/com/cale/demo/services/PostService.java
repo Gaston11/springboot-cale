@@ -39,8 +39,20 @@ public class PostService {
         this.currentUserService = currentUserService;
     }
 
-    public PageResponse<PostResponseDto> obtenerPosts(Pageable pageable) {
-        Page<PostModel> pagina = postRepository.findAll(pageable);
+    public PageResponse<PostResponseDto> obtenerPosts(Pageable pageable, String titulo, Long usuarioId) {
+        Page<PostModel> pagina;
+
+        if(titulo != null && !titulo.isBlank()){
+            pagina = postRepository.findByTituloContainingIgnoreCase(pageable,titulo);
+        }else {
+            pagina = postRepository.findAll(pageable);
+        }
+
+        if(usuarioId != null){
+            pagina = postRepository.findByUsuarioId(pageable,usuarioId);
+        }else {
+            pagina = postRepository.findAll(pageable);
+        }
 
         return new PageResponse<>(
                 pagina.getContent().stream().map(this::convertirADto).toList(),
