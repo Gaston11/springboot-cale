@@ -1,17 +1,12 @@
 package com.cale.demo.services;
 
-import com.cale.demo.dtos.PageResponse;
-import com.cale.demo.dtos.PostRequestDto;
-import com.cale.demo.dtos.PostResponseDto;
-import com.cale.demo.dtos.UsuarioResponseDto;
+import com.cale.demo.dtos.*;
 import com.cale.demo.exepciones.NoAutorizadoException;
 import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
-import com.cale.demo.models.CategoriaModel;
-import com.cale.demo.models.PostModel;
-import com.cale.demo.models.Rol;
-import com.cale.demo.models.UsuarioModel;
+import com.cale.demo.models.*;
 import com.cale.demo.repositories.CategoriaRepository;
+import com.cale.demo.repositories.ComentarioRepository;
 import com.cale.demo.repositories.PostRepository;
 import com.cale.demo.repositories.UsuarioRepository;
 import jakarta.validation.Valid;
@@ -31,12 +26,14 @@ public class PostService {
     private final CategoriaRepository categoriaRepository;
     private final UsuarioRepository usuarioRepository;
     private final CurrentUserService currentUserService;
+    private final ComentarioRepository comentarioRepository;
 
-    public PostService(UsuarioRepository usuarioRepository, PostRepository postRepository, CategoriaRepository categoriaRepository, CurrentUserService currentUserService) {
+    public PostService(UsuarioRepository usuarioRepository, PostRepository postRepository, CategoriaRepository categoriaRepository, CurrentUserService currentUserService, ComentarioRepository comentarioRepository) {
         this.postRepository = postRepository;
         this.categoriaRepository = categoriaRepository;
         this.usuarioRepository = usuarioRepository;
         this.currentUserService = currentUserService;
+        this.comentarioRepository = comentarioRepository;
     }
 
     public PageResponse<PostResponseDto> obtenerPosts(Pageable pageable, String titulo, Long usuarioId) {
@@ -134,5 +131,37 @@ public class PostService {
         postActual.setCategorias(categoriaModels);
 
         return convertirADto(postRepository.save(postActual));
+    }
+
+    public ComentarioResponseDto guardarComentario(Long id, ComentarioRequestDto comentarioRequestDto) {
+        UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
+        PostModel postActual = obtenerPostModelPorID(id);
+        ComentarioModel comentarioModel = new ComentarioModel();
+        ComentarioResponseDto comentarioResponseDto = new ComentarioResponseDto();
+
+        if (postActual != null){
+            comentarioModel.setPost(postActual);
+            comentarioModel.setComentario(comentarioRequestDto.getComentario());
+            comentarioModel.setUsuario(usuarioModel);
+            this.comentarioRepository.save(comentarioModel);
+            comentarioResponseDto.setComentario(comentarioModel.getComentario());
+            comentarioResponseDto.setId(comentarioModel.getId());
+        }
+        return comentarioResponseDto;
+    }
+
+    public Set<ComentarioResponseDto> obtenerComentarios(Long id) {
+        Set<ComentarioResponseDto> comentarioResponseDtos = new HashSet<>();
+        if (obtenerPostModelPorID(id) != null){
+            Set<ComentarioModel> comentarioModelSet = new HashSet<>();
+            comentarioModelSet = this.comentarioRepository.findByPostId(id);
+            for (ComentarioModel comentarioModel : comentarioModelSet) {
+                ComentarioResponseDto comentarioResponseDto = new ComentarioResponseDto();
+                comentarioResponseDto.setComentario(comentarioModel.getComentario());
+                comentarioResponseDto.setId(comentarioModel.getId());
+                comentarioResponseDtos.add(comentarioResponseDto);
+            }
+        }
+        return comentarioResponseDtos;
     }
 }

@@ -1,8 +1,7 @@
 package com.cale.demo.controllers;
 
-import com.cale.demo.dtos.PageResponse;
-import com.cale.demo.dtos.PostRequestDto;
-import com.cale.demo.dtos.PostResponseDto;
+import com.cale.demo.dtos.*;
+import com.cale.demo.models.ComentarioModel;
 import com.cale.demo.services.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/post")
@@ -47,4 +47,17 @@ public class PostController {
     public PostResponseDto actualizarPost( @PathVariable("id") Long id, @Valid @RequestBody PostRequestDto postRequestDto) {
         return postService.actualizarPost(postRequestDto,id);
     }
+
+    @PostMapping(path = "/{id}/comentarios")
+    public ComentarioResponseDto guardarComentario(@PathVariable("id")  Long id, @Valid @RequestBody ComentarioRequestDto comentarioRequestDto) {
+        return this.postService.guardarComentario(id,comentarioRequestDto);
+    }
+
+    @GetMapping(path = "/{id}/comentarios")
+    public Set<ComentarioResponseDto> obtenerComentarios(@PathVariable("id")  Long id){
+        return this.postService.obtenerComentarios(id);
+    }
+
+
+
 }
