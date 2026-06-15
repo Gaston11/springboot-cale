@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,18 +39,14 @@ public class PostService {
     }
 
     public PageResponse<PostResponseDto> obtenerPosts(Pageable pageable, String titulo, Long usuarioId) {
-        Page<PostModel> pagina;
+        Page<PostModel> pagina = postRepository.findAll(pageable);
 
         if(titulo != null && !titulo.isBlank()){
             pagina = postRepository.findByTituloContainingIgnoreCase(pageable,titulo);
-        }else {
-            pagina = postRepository.findAll(pageable);
         }
 
         if(usuarioId != null){
             pagina = postRepository.findByUsuarioId(pageable,usuarioId);
-        }else {
-            pagina = postRepository.findAll(pageable);
         }
 
         return new PageResponse<>(
@@ -60,7 +58,10 @@ public class PostService {
         );
     }
 
-    public PostResponseDto guardarPost(PostRequestDto postRequestDto, String email) {
+    public PostResponseDto guardarPost(PostRequestDto postRequestDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
         PostModel postModel = new PostModel();
         postModel.setTitulo(postRequestDto.getTitulo());
         postModel.setDescripcion(postRequestDto.getDescripcion());

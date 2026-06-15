@@ -3,8 +3,6 @@ package com.cale.demo.services;
 import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
-import com.cale.demo.exepciones.NoAutorizadoException;
-import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;

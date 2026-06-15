@@ -27,10 +27,7 @@ public class PostController {
 
     @PostMapping
     public PostResponseDto guardarPost(@Valid @RequestBody PostRequestDto postRequestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-
-        return postService.guardarPost(postRequestDto,email);
+        return postService.guardarPost(postRequestDto);
     }
 
     @GetMapping(path = "/{id}")
