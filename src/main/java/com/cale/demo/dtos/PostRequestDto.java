@@ -11,8 +11,7 @@ public class PostRequestDto {
     private String titulo;
     @NotBlank
     private String descripcion;
-    //@NotNull
-    //private Long usuarioId;
+
     @NotNull
     private Set<Long> categoriasIds;
 
