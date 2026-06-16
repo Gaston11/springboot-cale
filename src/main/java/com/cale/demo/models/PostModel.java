@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "post")
-public class PostModel {
+public class PostModel extends AuditableModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

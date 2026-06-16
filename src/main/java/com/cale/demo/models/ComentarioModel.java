@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class ComentarioModel {
+public class ComentarioModel extends AuditableModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

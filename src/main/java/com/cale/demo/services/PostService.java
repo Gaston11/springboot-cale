@@ -92,7 +92,8 @@ public class PostService {
         usuarioResponseDto.setNombre(postModel.getUsuario().getNombre());
         usuarioResponseDto.setId(postModel.getUsuario().getId());
         postResponseDto.setUsuario(usuarioResponseDto);
-        postResponseDto.setNombreCategorias(postModel.getCategorias()
+        postResponseDto.setFechaCreacion(postModel.getFechaCreacion());
+        postResponseDto.setFechaActualizacion(postModel.getFechaModificacion());      postResponseDto.setNombreCategorias(postModel.getCategorias()
         .stream().map(c -> c.getNombre()).collect(Collectors.toSet()));
 
         return postResponseDto;
@@ -147,6 +148,8 @@ public class PostService {
             this.comentarioRepository.save(comentarioModel);
             comentarioResponseDto.setComentario(comentarioModel.getComentario());
             comentarioResponseDto.setId(comentarioModel.getId());
+            comentarioResponseDto.setFechaCreacion(comentarioModel.getFechaCreacion());
+            comentarioResponseDto.setFechaActualizacion(comentarioModel.getFechaModificacion());
         }
         return comentarioResponseDto;
     }

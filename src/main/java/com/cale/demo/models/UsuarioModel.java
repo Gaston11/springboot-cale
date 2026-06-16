@@ -10,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "usuario")
-public class UsuarioModel {
+public class UsuarioModel extends AuditableModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

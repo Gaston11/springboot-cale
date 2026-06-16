@@ -1,5 +1,6 @@
 package com.cale.demo.dtos;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public class PostResponseDto {
@@ -9,6 +10,8 @@ public class PostResponseDto {
     private String descripcion;
     private UsuarioResponseDto usuario;
     private Set<String> nombreCategorias;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaActualizacion;
 
     public Long getId() {
         return id;
@@ -48,5 +51,21 @@ public class PostResponseDto {
 
     public void setNombreCategorias(Set<String> nombreCategorias) {
         this.nombreCategorias = nombreCategorias;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getFechaActualizacion() {
+        return fechaActualizacion;
+    }
+
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
+        this.fechaActualizacion = fechaActualizacion;
     }
 }

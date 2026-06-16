@@ -36,6 +36,8 @@ public class UsuarioService {
         UsuarioResponseDto usuarioResponseDto = new UsuarioResponseDto();
         usuarioResponseDto.setId(usuarioModel.getId());
         usuarioResponseDto.setNombre(usuarioModel.getNombre());
+        usuarioResponseDto.setFechaCreacion(usuarioModel.getFechaCreacion());
+        usuarioResponseDto.setFechaActualizacion(usuarioModel.getFechaCreacion());
 
         return usuarioResponseDto;
     }
