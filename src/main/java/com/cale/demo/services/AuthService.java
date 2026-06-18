@@ -3,6 +3,7 @@ package com.cale.demo.services;
 import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
+import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
@@ -24,13 +25,15 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-
     public UsuarioModel register(RegisterRequest registerRequest) {
         UsuarioModel usuarioModel = new UsuarioModel();
-
+        String email = registerRequest.getEmail();
+        if(this.esEmailRepetido(email)){
+            throw new OperacionInvalidaException("El email ya existe");
+        }
         usuarioModel.setNombre(registerRequest.getNombre());
         usuarioModel.setApellido(registerRequest.getApellido());
-        usuarioModel.setEmail(registerRequest.getEmail());
+        usuarioModel.setEmail(email);
         usuarioModel.setPrioridad(registerRequest.getPrioridad());
 
         String passwordHash = this.passwordEncoder.encode(registerRequest.getPassword());
@@ -50,6 +53,10 @@ public class AuthService {
         }
 
         return jwtService.generarToken(usuarioModel.getEmail());
+    }
+
+    private boolean esEmailRepetido(String email){
+        return usuarioRepository.findByEmail(email).isPresent();
     }
 
 }
