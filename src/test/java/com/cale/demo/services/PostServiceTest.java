@@ -1,6 +1,8 @@
 package com.cale.demo.services;
 
 import com.cale.demo.dtos.PostRequestDto;
+import com.cale.demo.dtos.PostResponseDto;
+import com.cale.demo.dtos.UsuarioResponseDto;
 import com.cale.demo.exepciones.NoAutorizadoException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.CategoriaModel;
@@ -17,13 +19,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PostServiceTest {
@@ -41,6 +43,38 @@ public class PostServiceTest {
     private PostService postService;
 
     @Test
+    void CrearPostNoDebeLanzarExcepcion() {
+        UsuarioModel  usuarioActual = new UsuarioModel();
+        usuarioActual.setId(1L);
+        usuarioActual.setRol(Rol.USER);
+
+        CategoriaModel categoria = new CategoriaModel();
+        categoria.setId(1L);
+        categoria.setNombre("Categoria");
+
+        UsuarioResponseDto usuarioResponseDto = new UsuarioResponseDto();
+        usuarioResponseDto.setId(1L);
+
+        PostRequestDto postRequestDto = new PostRequestDto();
+        postRequestDto.setTitulo("Titulo");
+        postRequestDto.setDescripcion("Descripcion");
+        postRequestDto.setCategoriasIds(Set.of(1L));
+
+        PostModel postNuevo = new PostModel();
+        postNuevo.setId(10L);
+        postNuevo.setUsuario(usuarioActual);
+        postNuevo.setCategorias(Set.of(categoria));
+
+        when(postRepository.save(any(PostModel.class))).thenReturn(postNuevo);
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
+        when(categoriaRepository.findAllById(Set.of(1L))).thenReturn(List.of(categoria));
+
+        Assertions.assertDoesNotThrow(() -> postService.guardarPost(postRequestDto));
+        verify(postRepository).save(any(PostModel.class));
+
+    }
+
+    @Test
     void DebeLanzarExcepcionSiPostNoExiste(){
 
         when(postRepository.findById(999L)).
@@ -48,6 +82,20 @@ public class PostServiceTest {
 
         assertThrows(RecursoNoEncontradoException.class,
                 () -> postService.obtenerPostPorID(999L));
+    }
+
+    @Test
+    void NoDebeLanzarExcepcionSiPostExisteAlBuscarlo(){
+        PostModel post = new PostModel();
+        post.setId(1L);
+        post.setDescripcion("descripcion");
+        post.setTitulo("titulo");
+        post.setUsuario(new UsuarioModel());
+
+        when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+
+        Assertions.assertDoesNotThrow(() -> postService.obtenerPostPorID(1L));
+        verify(postRepository).findById(1L);
     }
 
     @Test
@@ -73,7 +121,7 @@ public class PostServiceTest {
 
         assertThrows(NoAutorizadoException.class,
                 () -> postService.actualizarPost(postRequestDto,10L));
-
+        verify(postRepository, never()).save(any());
     }
 
     @Test

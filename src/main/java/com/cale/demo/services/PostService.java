@@ -59,16 +59,11 @@ public class PostService {
     }
 
     public PostResponseDto guardarPost(PostRequestDto postRequestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
 
         PostModel postModel = new PostModel();
         postModel.setTitulo(postRequestDto.getTitulo());
         postModel.setDescripcion(postRequestDto.getDescripcion());
-
-        UsuarioModel usuarioModel = new UsuarioModel();
-        usuarioModel = usuarioRepository.findByEmail(email)
-                .orElseThrow( ()-> new RecursoNoEncontradoException("Usuario no encontrado con email " + email));
 
         postModel.setUsuario(usuarioModel);
 
