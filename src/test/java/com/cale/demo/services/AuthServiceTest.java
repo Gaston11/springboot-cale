@@ -2,17 +2,13 @@ package com.cale.demo.services;
 
 import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.RegisterRequest;
-import com.cale.demo.dtos.UsuarioRequestDto;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
-import com.cale.demo.repositories.CategoriaRepository;
-import com.cale.demo.repositories.PostRepository;
 import com.cale.demo.repositories.UsuarioRepository;
 import com.cale.demo.security.JwtService;
-import jakarta.validation.constraints.Email;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

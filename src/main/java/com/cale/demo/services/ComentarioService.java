@@ -5,6 +5,7 @@ import com.cale.demo.dtos.ComentarioResponseDto;
 import com.cale.demo.exepciones.NoAutorizadoException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.ComentarioModel;
+import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.ComentarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class ComentarioService {
         comentarioModel = obtenerComentarioModelPorID(idComentario);
         UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
 
-        if (comentarioModel.getUsuario().getId() != usuarioModel.getId()) {
+        if ((comentarioModel.getUsuario().getId() != usuarioModel.getId()) && (usuarioModel.getRol() != Rol.ADMIN)) {
             throw new NoAutorizadoException("El usuario no tiene permiso para editar este comentario");
         }
 
