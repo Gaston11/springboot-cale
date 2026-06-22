@@ -1,5 +1,6 @@
 package com.cale.demo.services;
 
+import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
 import org.springframework.security.core.Authentication;
@@ -20,7 +21,7 @@ public class CurrentUserService {
         String email = authentication.getName();
 
         return this.usuarioRepository.findByEmail(email).orElseThrow(
-                () -> new RuntimeException("Usuario no encontrado")
+                () -> new RecursoNoEncontradoException("Usuario no encontrado")
         );
     }
 }

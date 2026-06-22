@@ -188,4 +188,83 @@ public class PostServiceTest {
         verify(postRepository).save(any(PostModel.class));
 
     }
+
+    @Test
+    void guardarPostDebeLanzarExcepcionSiCategoriaNoExiste(){
+        UsuarioModel  usuarioActual = new UsuarioModel();
+        usuarioActual.setId(1L);
+        usuarioActual.setRol(Rol.USER);
+
+        PostRequestDto postRequestDto = new PostRequestDto();
+        postRequestDto.setTitulo("Titulo");
+        postRequestDto.setDescripcion("Descripcion");
+        postRequestDto.setCategoriasIds(Set.of(99L));
+
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
+        when(categoriaRepository.findAllById(postRequestDto.getCategoriasId())).thenReturn(List.of());
+
+        Assertions.assertThrows(RecursoNoEncontradoException.class,
+                ()-> postService.guardarPost(postRequestDto));
+    }
+
+    @Test
+    void actualizarPostDebeLanzarExcepcionSiCategoriaNoExiste(){
+        UsuarioModel  usuarioActual = new UsuarioModel();
+        usuarioActual.setId(1L);
+        usuarioActual.setRol(Rol.USER);
+
+        PostRequestDto postRequestDto = new PostRequestDto();
+        postRequestDto.setTitulo("Titulo");
+        postRequestDto.setDescripcion("Descripcion");
+        postRequestDto.setCategoriasIds(Set.of(99L));
+
+        CategoriaModel categoria = new CategoriaModel();
+        categoria.setId(1L);
+        categoria.setNombre("Categoria");
+
+        PostModel postNuevo = new PostModel();
+        postNuevo.setId(10L);
+        postNuevo.setUsuario(usuarioActual);
+        postNuevo.setTitulo("Titulo");
+        postNuevo.setDescripcion("Descripcion");
+        postNuevo.setCategorias(Set.of(categoria));
+
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
+        when(postRepository.findById(10L)).thenReturn(Optional.of(postNuevo));
+        when(categoriaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(RecursoNoEncontradoException.class,
+                ()-> postService.actualizarPost(postRequestDto,10L));
+    }
+
+    @Test
+    void eliminarPostDebeLanzarExcepcionSiPostNoExiste(){
+
+        when(postRepository.findById(1L)).thenReturn(Optional.empty());
+        Assertions.assertThrows(RecursoNoEncontradoException.class,
+                ()-> postService.eliminarPost(1L));
+    }
+
+    @Test
+    void usuarioNoPuedeEliminarPostAjeno(){
+        UsuarioModel  usuarioActual = new UsuarioModel();
+        usuarioActual.setId(1L);
+        usuarioActual.setRol(Rol.USER);
+
+        UsuarioModel usuarioPost = new UsuarioModel();
+        usuarioPost.setId(2L);
+        usuarioPost.setRol(Rol.USER);
+
+        PostModel postNuevo = new PostModel();
+        postNuevo.setId(10L);
+        postNuevo.setUsuario(usuarioPost);
+        postNuevo.setTitulo("Titulo");
+        postNuevo.setDescripcion("Descripcion");
+
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
+        when(postRepository.findById(10L)).thenReturn(Optional.of(postNuevo));
+
+        Assertions.assertThrows(NoAutorizadoException.class,
+                ()-> postService.eliminarPost(10L));
+    }
 }

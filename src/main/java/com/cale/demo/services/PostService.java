@@ -73,6 +73,10 @@ public class PostService {
         }
 
         Set<CategoriaModel> categorias = new HashSet<>((Collection) categoriaRepository.findAllById(categoriaModelSet));
+        if (categorias.isEmpty()) {
+            throw new RecursoNoEncontradoException("No se encuentran esas categorias");
+        }
+
         postModel.setCategorias(categorias);
 
         return convertirADto(postRepository.save(postModel));
@@ -104,9 +108,15 @@ public class PostService {
     }
 
     public void eliminarPost(Long id) {
-        if (obtenerPostPorID(id) != null){
-            postRepository.deleteById(id);
+        UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
+        PostModel postActual = obtenerPostModelPorID(id);
+
+        if ((!postActual.getUsuario().getId().equals(usuarioModel.getId()))
+                && (usuarioModel.getRol() != Rol.ADMIN) ) {
+            throw new NoAutorizadoException("No puedes editar este post");
         }
+
+        postRepository.deleteById(id);
     }
 
     public PostResponseDto actualizarPost(@Valid PostRequestDto postRequestDto, Long id) {
