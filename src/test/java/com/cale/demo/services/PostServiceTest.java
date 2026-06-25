@@ -58,7 +58,7 @@ public class PostServiceTest {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Titulo");
         postRequestDto.setDescripcion("Descripcion");
-        postRequestDto.setCategoriasIds(Set.of(1L));
+        postRequestDto.setCategoriaIds(Set.of(1L));
 
         PostModel postNuevo = new PostModel();
         postNuevo.setId(10L);
@@ -147,7 +147,7 @@ public class PostServiceTest {
         postRequestDto.setTitulo("Titulo");
         postRequestDto.setDescripcion("Descripcion");
 
-        postRequestDto.setCategoriasIds(Set.of(1L));
+        postRequestDto.setCategoriaIds(Set.of(1L));
 
         when(currentUserService.getCurrentUser()).thenReturn(usuarioAdmin);
         when(postRepository.findById(10L)).thenReturn(Optional.of(postNuevo));
@@ -177,7 +177,7 @@ public class PostServiceTest {
         postRequestDto.setTitulo("Titulo");
         postRequestDto.setDescripcion("Descripcion");
 
-        postRequestDto.setCategoriasIds(Set.of(1L));
+        postRequestDto.setCategoriaIds(Set.of(1L));
 
         when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
         when(postRepository.findById(10L)).thenReturn(Optional.of(postNuevo));
@@ -198,10 +198,10 @@ public class PostServiceTest {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Titulo");
         postRequestDto.setDescripcion("Descripcion");
-        postRequestDto.setCategoriasIds(Set.of(99L));
+        postRequestDto.setCategoriaIds(Set.of(99L));
 
         when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
-        when(categoriaRepository.findAllById(postRequestDto.getCategoriasId())).thenReturn(List.of());
+        when(categoriaRepository.findAllById(postRequestDto.getCategoriaIds())).thenReturn(List.of());
 
         Assertions.assertThrows(RecursoNoEncontradoException.class,
                 ()-> postService.guardarPost(postRequestDto));
@@ -216,7 +216,7 @@ public class PostServiceTest {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Titulo");
         postRequestDto.setDescripcion("Descripcion");
-        postRequestDto.setCategoriasIds(Set.of(99L));
+        postRequestDto.setCategoriaIds(Set.of(99L));
 
         CategoriaModel categoria = new CategoriaModel();
         categoria.setId(1L);

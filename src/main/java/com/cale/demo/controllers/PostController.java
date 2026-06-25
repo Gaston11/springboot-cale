@@ -1,16 +1,13 @@
 package com.cale.demo.controllers;
 
 import com.cale.demo.dtos.*;
-import com.cale.demo.models.ComentarioModel;
 import com.cale.demo.services.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -26,6 +23,7 @@ public class PostController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public PostResponseDto guardarPost(@Valid @RequestBody PostRequestDto postRequestDto) {
         return postService.guardarPost(postRequestDto);
     }
@@ -36,11 +34,13 @@ public class PostController {
     }
 
     @DeleteMapping(path = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminarPost(@PathVariable("id") Long id){
         postService.eliminarPost(id);
     }
 
     @PutMapping(path = "/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
     public PostResponseDto actualizarPost( @PathVariable("id") Long id, @Valid @RequestBody PostRequestDto postRequestDto) {
         return postService.actualizarPost(postRequestDto,id);
     }

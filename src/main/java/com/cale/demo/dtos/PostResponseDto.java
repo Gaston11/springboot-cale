@@ -37,7 +37,7 @@ public class PostResponseDto {
         this.descripcion = descripcion;
     }
 
-    public UsuarioResponseDto getUsuarioDto() {
+    public UsuarioResponseDto getUsuario() {
         return usuario;
     }
 

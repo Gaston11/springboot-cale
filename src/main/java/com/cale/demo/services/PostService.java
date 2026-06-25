@@ -67,7 +67,7 @@ public class PostService {
 
         postModel.setUsuario(usuarioModel);
 
-        Set<Long> categoriaModelSet = postRequestDto.getCategoriasId();
+        Set<Long> categoriaModelSet = postRequestDto.getCategoriaIds();
         if (categoriaModelSet.isEmpty()) {
             throw new OperacionInvalidaException("El post debe tener al menos una categoria");
         }
@@ -131,7 +131,7 @@ public class PostService {
 
         postActual.setTitulo(postRequestDto.getTitulo());
         postActual.setDescripcion(postRequestDto.getDescripcion());
-        Set<CategoriaModel> categoriaModels = postRequestDto.getCategoriasId().stream().
+        Set<CategoriaModel> categoriaModels = postRequestDto.getCategoriaIds().stream().
                 map(idCategoria -> categoriaRepository.findById(idCategoria).
                         orElseThrow(() -> new RecursoNoEncontradoException("Categoria no encontrada: " + idCategoria))).
                 collect(Collectors.toSet());

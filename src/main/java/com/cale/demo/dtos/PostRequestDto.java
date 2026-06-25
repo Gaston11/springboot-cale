@@ -13,26 +13,15 @@ public class PostRequestDto {
     private String descripcion;
 
     @NotNull
-    private Set<Long> categoriasIds;
+    private Set<Long> categoriaIds;
 
-    public Set<Long> getCategoriasId() {
-        return categoriasIds;
+    public Set<Long> getCategoriaIds() {
+        return categoriaIds;
     }
 
-    public void setCategoriasIds(Set<Long> categoriasId) {
-        this.categoriasIds = categoriasId;
+    public void setCategoriaIds(Set<Long> categoriaIds) {
+        this.categoriaIds = categoriaIds;
     }
-
-    /*
-    public Long getUsuarioId() {
-        return usuarioId;
-    }
-
-    public void setUsuarioId(Long usuarioId) {
-        this.usuarioId = usuarioId;
-    }
-
-     */
 
     public String getDescripcion() {
         return descripcion;
