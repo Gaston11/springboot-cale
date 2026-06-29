@@ -5,6 +5,7 @@ import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
+import com.cale.demo.exepciones.RecursoYaExisteException;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
@@ -29,7 +30,7 @@ public class AuthService {
         UsuarioModel usuarioModel = new UsuarioModel();
         String email = registerRequest.getEmail();
         if(this.esEmailRepetido(email)){
-            throw new OperacionInvalidaException("El email ya existe");
+            throw new RecursoYaExisteException("El email ya existe");
         }
         usuarioModel.setNombre(registerRequest.getNombre());
         usuarioModel.setApellido(registerRequest.getApellido());

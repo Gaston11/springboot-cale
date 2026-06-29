@@ -74,4 +74,16 @@ public class GlobalExceptionHandler {
         });
         return ResponseEntity.badRequest().body(errores);
     }
+
+    @ExceptionHandler(RecursoYaExisteException.class)
+    public ResponseEntity<ErrorResponse> manejarRuntimeException(
+            RecursoYaExisteException ex) {
+
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }
