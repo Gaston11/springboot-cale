@@ -5,6 +5,7 @@ import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
+import com.cale.demo.exepciones.RecursoYaExisteException;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
@@ -86,7 +87,7 @@ public class AuthServiceTest {
 
         when(usuarioRepository.findByEmail("test@mail.com")).thenReturn(Optional.of(usuarioModelExistente));
 
-        Assertions.assertThrows(OperacionInvalidaException.class,()->authService.register(registerRequest));
+        Assertions.assertThrows(RecursoYaExisteException.class,()->authService.register(registerRequest));
 
         verify(usuarioRepository,never()).save(any(UsuarioModel.class));
         verify(passwordEncoder,never()).encode(anyString());
@@ -106,7 +107,7 @@ public class AuthServiceTest {
         when(passwordEncoder.matches(anyString(),anyString())).thenReturn(true);
         when(jwtService.generarToken(loginRequest.getEmail())).thenReturn("token");
 
-        String token = authService.login(loginRequest);
+        String token = authService.login(loginRequest).getToken();
         assertEquals("token", token);
 
         verify(usuarioRepository).findByEmail("email@mail");
@@ -122,7 +123,7 @@ public class AuthServiceTest {
         loginRequest.setPassword("password");
 
         when(usuarioRepository.findByEmail("email@mail")).thenReturn(Optional.empty());
-        assertThrows(RecursoNoEncontradoException.class,
+        assertThrows(CredencialesInvalidasException.class,
                 () -> authService.login(loginRequest));
 
         verify(usuarioRepository,never()).save(any(UsuarioModel.class));

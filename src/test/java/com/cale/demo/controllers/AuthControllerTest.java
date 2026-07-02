@@ -1,8 +1,12 @@
 package com.cale.demo.controllers;
 
+import com.cale.demo.dtos.LoginRequest;
+import com.cale.demo.dtos.LoginResponse;
 import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.dtos.UsuarioRequestDto;
+import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.exepciones.OperacionInvalidaException;
+import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.exepciones.RecursoYaExisteException;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
@@ -128,6 +132,62 @@ public class AuthControllerTest {
                 .andExpect(status().isConflict());
 
         verify(authService).register(any(RegisterRequest.class));
+
+    }
+
+    @Test
+    void loginRetornaToken() throws Exception {
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("algo@mail.com");
+        loginRequest.setPassword("123456");
+
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken("jwt.token");
+
+        when(authService.login(any(LoginRequest.class))).thenReturn(loginResponse);
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("jwt.token"));
+
+        verify(authService).login(any(LoginRequest.class));
+
+    }
+
+    @Test
+    void loginDevuelve401SiPasswordEsIncorrecta() throws Exception {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("algo@mail.com");
+        loginRequest.setPassword("falso");
+
+        when(authService.login(any(LoginRequest.class))).thenThrow(CredencialesInvalidasException.class);
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized());
+
+        verify(authService).login(any(LoginRequest.class));
+
+    }
+
+    @Test
+    void loginDevuelve401SiMailNoExiste() throws Exception {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("falso@mail.com");
+        loginRequest.setPassword("123456");
+
+        when(authService.login(any(LoginRequest.class))).thenThrow(CredencialesInvalidasException.class);
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized());
+
+        verify(authService).login(any(LoginRequest.class));
 
     }
 }

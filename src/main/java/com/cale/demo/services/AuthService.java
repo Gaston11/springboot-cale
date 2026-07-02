@@ -1,6 +1,7 @@
 package com.cale.demo.services;
 
 import com.cale.demo.dtos.LoginRequest;
+import com.cale.demo.dtos.LoginResponse;
 import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.exepciones.OperacionInvalidaException;
@@ -45,15 +46,17 @@ public class AuthService {
         return usuarioRepository.save(usuarioModel);
     }
 
-    public String login(LoginRequest loginRequest){
+    public LoginResponse login(LoginRequest loginRequest){
         UsuarioModel usuarioModel = usuarioRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+                .orElseThrow(() -> new CredencialesInvalidasException("Credenciales inválidas"));
 
         if(!passwordEncoder.matches(loginRequest.getPassword(), usuarioModel.getPassword())){
-            throw new CredencialesInvalidasException("Contraseña incorrecta");
+            throw new CredencialesInvalidasException("Credenciales inválidas");
         }
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(jwtService.generarToken(usuarioModel.getEmail()));
 
-        return jwtService.generarToken(usuarioModel.getEmail());
+        return loginResponse;
     }
 
     private boolean esEmailRepetido(String email){

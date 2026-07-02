@@ -1,6 +1,7 @@
 package com.cale.demo.controllers;
 
 import com.cale.demo.dtos.LoginRequest;
+import com.cale.demo.dtos.LoginResponse;
 import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.services.AuthService;
@@ -26,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest loginRequest) {
+    public LoginResponse login(@RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 }
