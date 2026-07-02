@@ -268,6 +268,4 @@ public class PostControllerTest {
 
         verify(postService).obtenerComentarios(eq(1L));
     }
-
-
 }
