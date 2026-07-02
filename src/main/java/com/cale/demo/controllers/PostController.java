@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -45,13 +46,14 @@ public class PostController {
         return postService.actualizarPost(postRequestDto,id);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "/{id}/comentarios")
     public ComentarioResponseDto guardarComentario(@PathVariable("id")  Long id, @Valid @RequestBody ComentarioRequestDto comentarioRequestDto) {
         return this.postService.guardarComentario(id,comentarioRequestDto);
     }
 
     @GetMapping(path = "/{id}/comentarios")
-    public Set<ComentarioResponseDto> obtenerComentarios(@PathVariable("id")  Long id){
+    public List<ComentarioResponseDto> obtenerComentarios(@PathVariable("id")  Long id){
         return this.postService.obtenerComentarios(id);
     }
 

@@ -1,8 +1,11 @@
 package com.cale.demo.controllers;
 
+import com.cale.demo.dtos.ComentarioRequestDto;
+import com.cale.demo.dtos.ComentarioResponseDto;
 import com.cale.demo.dtos.PostRequestDto;
 import com.cale.demo.dtos.PostResponseDto;
 import com.cale.demo.exepciones.NoAutorizadoException;
+import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.security.JwtAuthenticationFilter;
@@ -17,8 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -182,5 +184,90 @@ public class PostControllerTest {
                 .andExpect(status().isForbidden());
 
     }
+
+    @Test
+    void crearComentarioDevuelve201() throws Exception {
+        ComentarioRequestDto comentarioRequestDto = new ComentarioRequestDto();
+        comentarioRequestDto.setComentario("Comentario nuevo");
+
+        ComentarioResponseDto comentarioResponseDto = new ComentarioResponseDto();
+        comentarioResponseDto.setComentario("Comentario nuevo");
+        comentarioResponseDto.setId(1L);
+
+        when(postService.guardarComentario(eq(1L),any(ComentarioRequestDto.class))).thenReturn(comentarioResponseDto);
+
+        mockMvc.perform(post("/post/1/comentarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(comentarioRequestDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.comentario").value("Comentario nuevo"));
+
+        verify(postService).guardarComentario(eq(1L),any(ComentarioRequestDto.class));
+
+    }
+
+    @Test
+    void crearComentarioDevuelve404SiPostNoExiste() throws Exception {
+        ComentarioRequestDto comentarioRequestDto = new ComentarioRequestDto();
+        comentarioRequestDto.setComentario("Comentario nuevo");
+
+        when(postService.guardarComentario(eq(1L),any(ComentarioRequestDto.class))).thenThrow(new RecursoNoEncontradoException("Post no encontrado"));
+
+        mockMvc.perform(post("/post/1/comentarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(comentarioRequestDto)))
+                .andExpect(status().isNotFound());
+
+        verify(postService).guardarComentario(eq(1L),any(ComentarioRequestDto.class));
+    }
+
+    @Test
+    void crearComentarioDevuelve400SiElDtoEsIvalido() throws Exception {
+        ComentarioRequestDto comentarioRequestDto = new ComentarioRequestDto();
+        comentarioRequestDto.setComentario("");
+
+        when(postService.guardarComentario(eq(1L),any(ComentarioRequestDto.class))).thenThrow(OperacionInvalidaException.class);
+
+        mockMvc.perform(post("/post/1/comentarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(comentarioRequestDto)))
+                .andExpect(status().isBadRequest());
+
+        verify(postService,never()).guardarComentario(eq(1L),any(ComentarioRequestDto.class));
+
+    }
+
+    @Test
+    void obtenerComentarioDevuelve200() throws Exception {
+        ComentarioResponseDto comentarioResponseDto = new ComentarioResponseDto();
+        comentarioResponseDto.setComentario("Comentario nuevo");
+        comentarioResponseDto.setId(1L);
+
+        List<ComentarioResponseDto> comentarioResponseDtos = new LinkedList<>();
+        comentarioResponseDtos.add(comentarioResponseDto);
+
+        when(postService.obtenerComentarios(eq(1L))).thenReturn(comentarioResponseDtos);
+
+        mockMvc.perform(get("/post/1/comentarios"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].comentario").value("Comentario nuevo"));
+
+        verify(postService).obtenerComentarios(eq(1L));
+
+    }
+
+    @Test
+    void obtenerComentarioDevuelve400SiPostNoExiste() throws Exception {
+
+        when(postService.obtenerComentarios(eq(1L))).thenThrow(RecursoNoEncontradoException.class);
+
+        mockMvc.perform(get("/post/1/comentarios"))
+                .andExpect(status().isNotFound());
+
+        verify(postService).obtenerComentarios(eq(1L));
+    }
+
 
 }

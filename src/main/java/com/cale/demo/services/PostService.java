@@ -159,8 +159,8 @@ public class PostService {
         return comentarioResponseDto;
     }
 
-    public Set<ComentarioResponseDto> obtenerComentarios(Long id) {
-        Set<ComentarioResponseDto> comentarioResponseDtos = new HashSet<>();
+    public List<ComentarioResponseDto> obtenerComentarios(Long id) {
+        List<ComentarioResponseDto> comentarioResponseDtos = new ArrayList<>();
         if (obtenerPostModelPorID(id) != null){
             Set<ComentarioModel> comentarioModelSet = new HashSet<>();
             comentarioModelSet = this.comentarioRepository.findByPostId(id);
