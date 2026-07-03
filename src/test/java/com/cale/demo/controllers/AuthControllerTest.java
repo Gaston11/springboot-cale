@@ -3,16 +3,12 @@ package com.cale.demo.controllers;
 import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.LoginResponse;
 import com.cale.demo.dtos.RegisterRequest;
-import com.cale.demo.dtos.UsuarioRequestDto;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
-import com.cale.demo.exepciones.OperacionInvalidaException;
-import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.exepciones.RecursoYaExisteException;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.security.JwtAuthenticationFilter;
 import com.cale.demo.services.AuthService;
-import com.cale.demo.services.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +19,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.management.openmbean.OpenDataException;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

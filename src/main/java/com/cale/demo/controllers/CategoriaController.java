@@ -3,6 +3,7 @@ package com.cale.demo.controllers;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.services.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class CategoriaController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public CategoriaModel guardarCategoria(@RequestBody CategoriaModel categoriaModel){
         return categoriaService.guardarCategoria(categoriaModel);
     }
@@ -31,6 +33,7 @@ public class CategoriaController {
     }
 
     @DeleteMapping(path = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminarCategoria(@PathVariable("id") Long id){
         categoriaService.eliminarCategoria(id);
     }
