@@ -56,7 +56,4 @@ public class PostController {
     public List<ComentarioResponseDto> obtenerComentarios(@PathVariable("id")  Long id){
         return this.postService.obtenerComentarios(id);
     }
-
-
-
 }
