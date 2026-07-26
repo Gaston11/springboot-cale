@@ -103,8 +103,6 @@ public class PostIntegrationTest {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Post 1");
         postRequestDto.setDescripcion("Descripcion 1");
-        Set<Long> categorias = new HashSet<>();
-        categorias.add(1L);
         postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
 
 
@@ -518,5 +516,40 @@ public class PostIntegrationTest {
                 .andExpect(status().isForbidden());
 
     }
+
+    @Test
+    void crearUnPostConTituloVacioDevuelve400() throws Exception {
+
+        registrarUsuario("gaston@mail.com");
+        String token = obtenerToken("gaston@mail.com","123456");
+
+        PostRequestDto postRequestDto = new PostRequestDto();
+        postRequestDto.setDescripcion("Spring Boot");
+        postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
+
+        mockMvc.perform(post("/post")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postRequestDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void crearUnPostConCategoriasNulasDevuelve400() throws Exception {
+
+        registrarUsuario("gaston@mail.com");
+        String token = obtenerToken("gaston@mail.com","123456");
+
+        PostRequestDto postRequestDto = new PostRequestDto();
+        postRequestDto.setTitulo("Spring Boot");
+        postRequestDto.setDescripcion("Spring Boot");
+
+        mockMvc.perform(post("/post")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postRequestDto)))
+                .andExpect(status().isBadRequest());
+    }
+
 
 }
