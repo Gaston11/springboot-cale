@@ -69,9 +69,6 @@ public class CategoriaControllerTest {
 
     @Test
     void guardarCategoriaRetorna201() throws Exception{
-        CategoriaRequestDto categoriaRequestDto = new CategoriaRequestDto();
-        categoriaRequestDto.setNombre("Categoria 1");
-
         CategoriaModel categoriaModel = new CategoriaModel();
         categoriaModel.setId(1L);
         categoriaModel.setNombre("Categoria 1");

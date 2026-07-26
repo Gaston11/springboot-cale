@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-public class AuthIntegrationTest {
+public class AuthIntegrationTest extends IntegrationTestBase{
 
     @Autowired
     private MockMvc mockMvc;
@@ -152,8 +152,6 @@ public class AuthIntegrationTest {
 
     @Test
     void loginConEmailInexistenteDevuelve401() throws Exception {
-        //registrarUsuario("gaston@mail.com");
-
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("gaston@mail.com");
         loginRequest.setPassword("123456");
@@ -165,33 +163,4 @@ public class AuthIntegrationTest {
 
     }
 
-    void registrarUsuario(String email) throws Exception {
-        RegisterRequest request = new RegisterRequest();
-        request.setNombre("Gaston");
-        request.setApellido("Perez");
-        request.setEmail(email);
-        request.setPassword("123456");
-        request.setPrioridad(1);
-
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
-    }
-
-    String obtenerToken(String email, String password) throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(email);
-        loginRequest.setPassword(password);
-
-        MvcResult loginResult = mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String json = loginResult.getResponse().getContentAsString();
-        LoginResponse response = objectMapper.readValue(json, LoginResponse.class);
-        return response.getToken();
-    }
 }

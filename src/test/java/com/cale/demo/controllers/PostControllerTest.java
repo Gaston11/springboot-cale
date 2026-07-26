@@ -146,7 +146,7 @@ public class PostControllerTest {
         mockMvc.perform(put("/post/10")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(postRequestDto)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(10))
                 .andExpect(jsonPath("$.titulo").value("Post 1"))
                 .andExpect(jsonPath("$.descripcion").value("Post 1"))
