@@ -35,7 +35,7 @@ public abstract class IntegrationTestBase {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Post 1");
         postRequestDto.setDescripcion("Descripcion 1");
-        postRequestDto.setCategoriaIds(Set.of(crearCategoria("Java")));
+        postRequestDto.setCategoriaIds(Set.of(crearCategoria("Java",token)));
 
 
         MvcResult postResult = mockMvc.perform(post("/post")
@@ -51,11 +51,12 @@ public abstract class IntegrationTestBase {
 
     }
 
-    private Long crearCategoria(String nombre) throws Exception {
+    public Long crearCategoria(String nombre, String token) throws Exception {
         CategoriaModel categoriaModel = new CategoriaModel();
         categoriaModel.setNombre(nombre);
 
         MvcResult categoriaResult = mockMvc.perform(post("/categoria")
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(categoriaModel)))
                 .andExpect(status().isCreated())
@@ -96,7 +97,7 @@ public abstract class IntegrationTestBase {
         return response.getToken();
     }
 
-    private Long crearUsuarioAdmin(String email) throws Exception {
+    public Long crearUsuarioAdmin(String email) throws Exception {
         this.registrarUsuario(email);
 
         UsuarioModel admin = usuarioRepository
