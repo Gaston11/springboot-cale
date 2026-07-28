@@ -23,7 +23,12 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable()) // desactiva csrf para APIS
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(
+                                "/auth/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/post/**").hasAnyRole("USER","ADMIN")
                         .anyRequest().authenticated())

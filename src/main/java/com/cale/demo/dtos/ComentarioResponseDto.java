@@ -1,12 +1,34 @@
 package com.cale.demo.dtos;
 
-import java.time.LocalDateTime;
-import java.util.Set;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDateTime;
+
+@Schema(description = "Respuesta de Comentario exitoso")
 public class ComentarioResponseDto {
+
+    @Schema(
+            description = "Comentario nuevo",
+            example = "Muy bueno el post"
+    )
     private String comentario;
+
+    @Schema(
+            description = "Identificador único del comentario",
+            example = "10"
+    )
     private Long id;
+
+    @Schema(
+            description = "Fecha de creación",
+            example = "2026-06-23T15:30:20"
+    )
     private LocalDateTime fechaCreacion;
+
+    @Schema(
+            description = "Fecha de actualización",
+            example = "2026-06-23T15:30:20"
+    )
     private LocalDateTime fechaActualizacion;
 
     public String getComentario() {

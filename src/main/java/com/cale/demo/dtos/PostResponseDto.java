@@ -1,16 +1,51 @@
 package com.cale.demo.dtos;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 
+@Schema(description = "Respuesta de post exitoso")
 public class PostResponseDto {
 
+    @Schema(
+            description = "Identificador único del post",
+            example = "10"
+    )
     private Long id;
+
+    @Schema(
+            description = "Título del post",
+            example = "Introducción a Spring Boot"
+    )
     private String titulo;
+    @Schema(
+            description = "Descripción del post",
+            example = "Conceptos básicos de Spring Boot."
+    )
     private String descripcion;
+
+    @Schema(
+            description = "Datos del usuario que creo el post"
+    )
     private UsuarioResponseDto usuario;
+
+    @Schema(
+            description = "Nombre de las categorias del post",
+            example = "[\"Java\", \"Spring\"]"
+    )
     private Set<String> nombreCategorias;
+
+    @Schema(
+            description = "Fecha de creación",
+            example = "2026-06-23T15:30:20"
+    )
     private LocalDateTime fechaCreacion;
+
+    @Schema(
+            description = "Fecha de actualización",
+            example = "2026-06-23T15:30:20"
+    )
     private LocalDateTime fechaActualizacion;
 
     public Long getId() {

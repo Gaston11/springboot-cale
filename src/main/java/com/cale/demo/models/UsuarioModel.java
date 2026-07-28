@@ -26,7 +26,7 @@ public class UsuarioModel extends AuditableModel{
     @Column(unique = true)
     private String email;
     @NotNull
-    private Integer prioridad;
+    private Integer prioridad; //revisar, no lo tiene que crear el usuario
     @NotNull
     @NotBlank
     private String apellido;
