@@ -10,10 +10,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import java.util.List;
 
@@ -23,6 +26,7 @@ import java.util.List;
         name = "Post",
         description = "Endpoints para los post y comentarios de estos."
 )
+@SecurityRequirement(name = "bearerAuth")
 public class PostController {
 
     @Autowired
@@ -45,7 +49,13 @@ public class PostController {
             )
     })
     @GetMapping
-    public PageResponse<PostResponseDto> obtenerPosts(Pageable pageable, @RequestParam(required = false) String titulo, @RequestParam(required = false) Long usuarioId) {
+    public PageResponse<PostResponseDto> obtenerPosts(
+            @ParameterObject
+            @PageableDefault(page = 0, size = 10)
+            Pageable pageable,
+            @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) Long usuarioId
+            ) {
         return postService.obtenerPosts(pageable, titulo, usuarioId);
     }
 

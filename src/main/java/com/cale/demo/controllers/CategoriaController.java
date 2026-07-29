@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import java.util.Optional;
         name = "Categoria",
         description = "Endpoints para registro de categorias."
 )
+@SecurityRequirement(name = "bearerAuth")
 public class CategoriaController {
 
     @Autowired
