@@ -1,4 +1,14 @@
 # Blog API
+![Java](https://img.shields.io/badge/Java-21-orange)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-brightgreen)
+![Spring Security](https://img.shields.io/badge/Security-Spring_Security-success)
+![JWT](https://img.shields.io/badge/Auth-JWT-yellow)
+![MySQL](https://img.shields.io/badge/Database-MySQL-blue)
+![H2](https://img.shields.io/badge/Test_DB-H2-informational)
+![JUnit5](https://img.shields.io/badge/Tests-JUnit5-red)
+![Mockito](https://img.shields.io/badge/Mockito-Enabled-green)
+![Swagger](https://img.shields.io/badge/OpenAPI-Swagger-85EA2D)
+![Gradle](https://img.shields.io/badge/Build-Gradle-02303A)
 
 API REST desarrollada con Spring Boot para la gestión de usuarios, publicaciones, categorías y comentarios.
 El proyecto implementa autenticación mediante JWT, autorización basada en roles (USER y ADMIN), validaciones, documentación con Swagger/OpenAPI y pruebas unitarias e integración.
