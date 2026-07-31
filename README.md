@@ -201,6 +201,25 @@ spring.datasource.password=...
 | POST   | /post/{id}/comentarios | Agregar comentario |
 | GET    | /categorias            | Listar categorías  |
 
+### Ejemplo real
+### POST /auth/register
+
+```
+Request
+
+{
+  "nombre":"Gaston",
+  "apellido":"Perez",
+  "email":"gaston@mail.com",
+  "password":"123456",
+  "prioridad":1
+}
+
+Response
+
+201 Created
+```
+
 
 ### Ejemplo de flujo
 Registrar usuario
