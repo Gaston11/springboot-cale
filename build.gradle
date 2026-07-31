@@ -68,6 +68,17 @@ jacocoTestReport {
     }
 }
 
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.75
+            }
+        }
+    }
+}
+check.dependsOn jacocoTestCoverageVerification
+
 jacoco {
     toolVersion = "0.8.13"
 }
