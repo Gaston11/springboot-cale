@@ -39,6 +39,7 @@ El proyecto implementa autenticación mediante JWT, autorización basada en role
 - MockMvc
 - Swagger / OpenAPI
 - Gradle
+- JaCoCo
 
 ## Funcionalidades
 ### Usuarios
@@ -188,6 +189,29 @@ spring.datasource.password=...
 - Permisos
 - Validaciones
 
+#### El proyecto utiliza **JaCoCo** para medir la cobertura de los tests unitarios y de integración.
+![Cobertura JaCoCo](images/jacocoReporte.png)
+
+####La cobertura actual es aproximadamente:
+
+| Métrica | Cobertura |
+|---------|----------:|
+| Instrucciones | **79%** |
+| Branches | **64%** |
+| Líneas | **80%** |
+
+El reporte HTML se genera con:
+
+```bash
+./gradlew jacocoTestReport
+```
+
+y puede consultarse en:
+
+```
+build/reports/jacoco/test/html/index.html
+```
+
 ### Endpoints principales
 
 | Método | Endpoint               | Descripción        |
@@ -248,6 +272,7 @@ Consumir la API
 ✅ Manejo global de excepciones
 ✅ Tests unitarios
 ✅ Tests de integración
+✅ JaCoCo (Cobertura de pruebas) 
 ✅ Paginación
 ✅ Comentarios
 ✅ Categorías
