@@ -1,0 +1,22 @@
+services:
+
+  mariadb:
+    image: mariadb:11
+    container_name: blog_db
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: cale
+      MARIADB_USER: gaston
+      MARIADB_PASSWORD: 1234
+
+  blog-api:
+    build: .
+    image: blog-api
+    ports:
+        - "8080:8080"
+    depends_on:
+      - mariadb
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mariadb:3306/cale
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
