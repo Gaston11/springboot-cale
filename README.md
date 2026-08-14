@@ -388,6 +388,7 @@ Consumir la API
 ✅ Manejo global de excepciones
 ✅ Tests unitarios
 ✅ Tests de integración
+✅ JaCoCo (Cobertura de pruebas) 
 ✅ Paginación
 ✅ Comentarios
 ✅ Categorías
