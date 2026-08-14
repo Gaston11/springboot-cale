@@ -2,8 +2,6 @@ HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### STS ###
 .apt_generated
@@ -25,7 +23,6 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-**/src/main/resources/application.properties
 error.log
 
 ### NetBeans ###
@@ -37,3 +34,8 @@ error.log
 
 ### VS Code ###
 .vscode/
+
+### Application configuration ###
+src/main/resources/application.properties
+
+build.log
