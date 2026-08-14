@@ -34,3 +34,8 @@ error.log
 
 ### VS Code ###
 .vscode/
+
+### Application configuration ###
+src/main/resources/application.properties
+
+build.log
