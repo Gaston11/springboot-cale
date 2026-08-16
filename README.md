@@ -193,8 +193,8 @@ No es necesario generar previamente el .jar. El Dockerfile realiza el build de l
 
 ### Clonar
 ```bash
-git clone https://github.com/Gaston11/blog-api.git
-cd blog-api
+git clone https://github.com/Gaston11/springboot-cale.git
+cd springboot-cale
 ``` 
 ### Levantar la aplicación
 ```bash
