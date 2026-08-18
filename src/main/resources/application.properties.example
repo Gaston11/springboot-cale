@@ -1,7 +1,7 @@
 spring.application.name=cale
 
 spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/cale}
-spring.datasource.username=${SPRING_DATASOURCE_USERNAME:TU_USUARIO}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME:root}
 spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:TU_PASSWORD}
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
