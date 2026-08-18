@@ -39,3 +39,4 @@ error.log
 src/main/resources/application.properties
 
 build.log
+.env
