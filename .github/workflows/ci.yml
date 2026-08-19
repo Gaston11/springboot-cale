@@ -37,3 +37,57 @@ jobs:
 
       - name: Construir imagen Docker
         run: docker build -t blog-api .
+
+  docker-integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Crear archivo .env
+        run: echo "JWT_SECRET=test_secret_key_that_is_long_enough_for_hs256_123456789" > .env
+
+      - name: Levantar Docker Compose
+        run: docker compose up -d --build
+
+      - name: Verificar contenedores
+        run: docker compose ps
+
+      - name: Ver logs de la API
+        run: docker compose logs blog-api
+
+      - name: Esperar a que la API esté disponible
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/v3/api-docs > /dev/null 2>&1; then
+              echo "API disponible"
+              exit 0
+            fi
+            echo "Esperando API..."
+            sleep 2
+          done
+
+          echo "La API no estuvo disponible"
+          docker compose logs
+          exit 1
+
+      - name: Probar login
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST http://localhost:8080/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"demo@cale.com","password":"demo1234"}')
+
+          echo "$RESPONSE"
+
+          STATUS=$(echo "$RESPONSE" | tail -n 1)
+
+          if [ "$STATUS" != "200" ]; then
+            echo "El login falló"
+            exit 1
+          fi
+
+      - name: Detener Docker Compose
+        if: always()
+        run: docker compose down
