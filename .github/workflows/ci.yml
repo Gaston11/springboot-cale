@@ -74,19 +74,26 @@ jobs:
 
       - name: Probar login
         run: |
-          RESPONSE=$(curl -s -w "\n%{http_code}" \
-            -X POST http://localhost:8080/auth/login \
+          http_code=$(curl -s -o login-response.json -w "%{http_code}" \
+            -X POST \
+            http://localhost:8080/auth/login \
             -H "Content-Type: application/json" \
-            -d '{"email":"demo@cale.com","password":"demo1234"}')
+            -d '{
+              "email": "demo@cale.com",
+              "password": "demo1234"
+            }')
 
-          echo "$RESPONSE"
+          echo "Respuesta del login:"
+          cat login-response.json
 
-          STATUS=$(echo "$RESPONSE" | tail -n 1)
+          echo "HTTP: $http_code"
 
-          if [ "$STATUS" != "200" ]; then
-            echo "El login falló"
+          if [ "$http_code" -ne 200 ]; then
+            echo "❌ Login falló"
             exit 1
           fi
+
+          echo "✅ Login correcto"
 
       - name: Detener Docker Compose
         if: always()
