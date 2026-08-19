@@ -34,3 +34,6 @@ jobs:
         with:
           name: blog-api-jar
           path: build/libs/*.jar
+
+      - name: Construir imagen Docker
+        run: docker build -t blog-api .
