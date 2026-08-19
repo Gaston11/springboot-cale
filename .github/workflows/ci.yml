@@ -93,7 +93,51 @@ jobs:
             exit 1
           fi
 
+          token=$(jq -r '.token' login-response.json)
+
+          if [ -z "$token" ] || [ "$token" = "null" ]; then
+            echo "❌ No se recibió JWT"
+            exit 1
+          fi
+
+          echo "JWT recibido correctamente"
+
+          echo "JWT=$token" >> "$GITHUB_ENV"
+
           echo "✅ Login correcto"
+
+      - name: Probar endpoint protegido sin JWT
+        run: |
+          http_code=$(curl -s -o posts-no-token-response.json -w "%{http_code}" \
+            http://localhost:8080/post)
+
+          echo "HTTP sin JWT: $http_code"
+
+          cat posts-no-token-response.json
+
+          if [ "$http_code" -ne 403 ]; then
+            echo "❌ Se esperaba HTTP 403 sin JWT"
+            exit 1
+          fi
+
+          echo "✅ Endpoint correctamente protegido"
+
+      - name: Probar endpoint protegido con JWT
+        run: |
+          http_code=$(curl -s -o posts-response.json -w "%{http_code}" \
+            http://localhost:8080/post \
+            -H "Authorization: Bearer $JWT")
+
+          echo "HTTP con JWT: $http_code"
+
+          cat posts-response.json
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "❌ Se esperaba HTTP 200 con JWT"
+            exit 1
+          fi
+
+          echo "✅ Endpoint protegido accesible con JWT"
 
       - name: Detener Docker Compose
         if: always()
