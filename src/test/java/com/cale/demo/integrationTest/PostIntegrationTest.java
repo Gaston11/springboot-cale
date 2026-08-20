@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,16 +65,16 @@ public class PostIntegrationTest extends IntegrationTestBase {
         registrarUsuario("gaston@mail.com");
         String token = obtenerToken("gaston@mail.com","123456");
 
-        crearPost(token);
+        Long postId = crearPost(token);
 
-        mockMvc.perform(get("/post")
+        mockMvc.perform(get("/post/{id}", postId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.contenido[0].titulo").value("Post 1"))
-                .andExpect(jsonPath("$.contenido[0].descripcion").value("Descripcion 1"));
+                .andExpect(jsonPath("$.titulo").value("Post 1"))
+                .andExpect(jsonPath("$.descripcion").value("Descripcion 1"));
 
-        assertEquals(1, postRepository.count());
-        PostModel post = postRepository.findAll().getFirst();
+        assertTrue(postRepository.findById(postId).isPresent());
+        PostModel post = postRepository.findById(postId).get();
 
         assertEquals("Post 1", post.getTitulo());
         assertEquals("Descripcion 1", post.getDescripcion());
@@ -101,7 +102,7 @@ public class PostIntegrationTest extends IntegrationTestBase {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
 
-        assertEquals(0, postRepository.count());
+        assertTrue(postRepository.findById(postId).isEmpty());
 
     }
 
@@ -139,12 +140,12 @@ public class PostIntegrationTest extends IntegrationTestBase {
     @Test
     void obtenerPostDevuelveLosPersistidos() throws Exception {
         String token = registrarYLoguear("gaston@mail.com");
-        this.crearPost(token);
+        Long postId = this.crearPost(token);
 
-        mockMvc.perform(get("/post")
+        mockMvc.perform(get("/post/{id}",postId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.contenido[0].titulo").value("Post 1"));
+                .andExpect(jsonPath("$.titulo").value("Post 1"));
     }
 
     @Test
@@ -293,9 +294,7 @@ public class PostIntegrationTest extends IntegrationTestBase {
                         .header("Authorization", "Bearer " + tokenNuevo))
                 .andExpect(status().isNoContent());
 
-        List<PostModel> list = postRepository.findAll();
-
-        assertEquals(0,list.size());
+        assertTrue(postRepository.findById(postId).isEmpty());
     }
 
     @Test

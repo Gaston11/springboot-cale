@@ -1,0 +1,143 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Dar permisos al Gradle Wrapper
+        run: chmod +x ./gradlew
+
+      - name: Ejecutar tests y verificar cobertura
+        run: ./gradlew clean check
+
+      - name: Guardar JAR como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: blog-api-jar
+          path: build/libs/*.jar
+
+  docker-integration:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Crear archivo .env
+        run: echo "JWT_SECRET=test_secret_key_that_is_long_enough_for_hs256_123456789" > .env
+
+      - name: Levantar Docker Compose
+        run: docker compose up -d --build
+
+      - name: Verificar contenedores
+        run: docker compose ps
+
+      - name: Ver logs de la API
+        run: docker compose logs blog-api
+
+      - name: Esperar a que la API esté disponible
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/v3/api-docs > /dev/null 2>&1; then
+              echo "API disponible"
+              exit 0
+            fi
+            echo "Esperando API..."
+            sleep 2
+          done
+
+          echo "La API no estuvo disponible"
+          docker compose logs
+          exit 1
+
+      - name: Probar login
+        run: |
+          http_code=$(curl -s -o login-response.json -w "%{http_code}" \
+            -X POST \
+            http://localhost:8080/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{
+              "email": "demo@cale.com",
+              "password": "demo1234"
+            }')
+
+          echo "Respuesta del login:"
+          cat login-response.json
+
+          echo "HTTP: $http_code"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "❌ Login falló"
+            exit 1
+          fi
+
+          token=$(jq -r '.token' login-response.json)
+
+          if [ -z "$token" ] || [ "$token" = "null" ]; then
+            echo "❌ No se recibió JWT"
+            exit 1
+          fi
+
+          echo "JWT recibido correctamente"
+
+          echo "JWT=$token" >> "$GITHUB_ENV"
+
+          echo "✅ Login correcto"
+
+      - name: Probar endpoint protegido sin JWT
+        run: |
+          http_code=$(curl -s -o posts-no-token-response.json -w "%{http_code}" \
+            http://localhost:8080/post)
+
+          echo "HTTP sin JWT: $http_code"
+
+          cat posts-no-token-response.json
+
+          if [ "$http_code" -ne 403 ]; then
+            echo "❌ Se esperaba HTTP 403 sin JWT"
+            exit 1
+          fi
+
+          echo "✅ Endpoint correctamente protegido"
+
+      - name: Probar endpoint protegido con JWT
+        run: |
+          http_code=$(curl -s -o posts-response.json -w "%{http_code}" \
+            http://localhost:8080/post \
+            -H "Authorization: Bearer $JWT")
+
+          echo "HTTP con JWT: $http_code"
+
+          cat posts-response.json
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "❌ Se esperaba HTTP 200 con JWT"
+            exit 1
+          fi
+
+          echo "✅ Endpoint protegido accesible con JWT"
+
+      - name: Detener Docker Compose
+        if: always()
+        run: docker compose down

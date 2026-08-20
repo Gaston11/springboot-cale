@@ -83,10 +83,16 @@ El proyecto implementa autenticación mediante JWT, autorización basada en role
 ### Seguridad
 
 - Roles USER y ADMIN.
+- Autenticación mediante JWT.
+- Los endpoints de posts requieren autenticación.
+- Los usuarios USER pueden operar sobre sus propios recursos según las reglas de autorización.
+- Los usuarios ADMIN tienen permisos administrativos sobre las publicaciones.
+- Los endpoints protegidos requieren un token JWT válido.
+- Las solicitudes sin autenticación son rechazadas.
 - Solo el autor puede modificar sus publicaciones.
 - El administrador puede modificar cualquier publicación.
-- Protección mediante JWT.
-- Validación de permisos.
+- Contraseñas almacenadas mediante BCrypt.
+- Validación de permisos según el rol del usuario.
 
 ## Arquitectura
 
@@ -157,6 +163,7 @@ Todas las solicitudes protegidas deben incluir el siguiente encabezado:
 Authorization: Bearer <JWT>
 ```
 ### El flujo de autenticación es:
+```text
 Registrar usuario
       │
       ▼
@@ -173,6 +180,7 @@ Authorization: Bearer <token>
       │
       ▼
 Consumir endpoints protegidos
+```
 
 ## Documentación
 
@@ -195,7 +203,17 @@ No es necesario generar previamente el .jar. El Dockerfile realiza el build de l
 ```bash
 git clone https://github.com/Gaston11/springboot-cale.git
 cd springboot-cale
-``` 
+```
+### Configurar JWT para Docker
+Crear un archivo `.env` en la raíz del proyecto:
+```bash
+touch .env
+```
+Agregar:
+```bash
+JWT_SECRET=una-clave-secreta-larga-y-segura-para-jwt
+```
+El archivo `.env` está incluido en `.gitignore` y no debe subirse al repositorio.
 ### Levantar la aplicación
 ```bash
 docker compose up --build
@@ -254,13 +272,20 @@ cp src/main/resources/application.properties.example \
 ```
 
 ### Variables de entorno
-La aplicación permite configurar la conexión a MySQL mediante:
+La aplicación utiliza variables de entorno para configurar la conexión a MySQL y la clave utilizada para firmar los tokens JWT:
 ```bash
 SPRING_DATASOURCE_URL
 SPRING_DATASOURCE_USERNAME
 SPRING_DATASOURCE_PASSWORD
+JWT_SECRET
 ```
 Docker Compose proporciona estas variables automáticamente.
+La variable ```JWT_SECRET``` debe contener una clave suficientemente larga para utilizarse con el algoritmo HMAC-SHA256.
+Por ejemplo, para ejecutar el proyecto localmente se puede definir:
+```bash
+export JWT_SECRET="una-clave-secreta-larga-y-segura-para-jwt"
+```
+No se debe subir al repositorio una clave JWT real.
 
 ## Ejecución local sin Docker
 También es posible ejecutar la aplicación directamente mediante Gradle.
@@ -395,7 +420,6 @@ Consumir la API
 ✅ MySQL
 ✅ Docker Compose
 ✅ Datos de demostración
-✅ JaCoCo
 
 ### Próximas mejoras
 - GitHub Actions (CI/CD)
