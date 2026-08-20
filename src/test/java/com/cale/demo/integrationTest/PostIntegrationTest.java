@@ -76,7 +76,7 @@ public class PostIntegrationTest extends IntegrationTestBase {
         assertTrue(postRepository.findById(postId).isPresent());
         PostModel post = postRepository.findById(postId).get();
 
-        assertEquals("Post", post.getTitulo());
+        assertEquals("Post 1", post.getTitulo());
         assertEquals("Descripcion 1", post.getDescripcion());
 
     }
