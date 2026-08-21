@@ -2,15 +2,11 @@ package com.cale.demo.integrationTest;
 
 import com.cale.demo.dtos.*;
 import com.cale.demo.models.CategoriaModel;
-import com.cale.demo.models.PostModel;
-import com.cale.demo.models.Rol;
-import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.CategoriaRepository;
 import com.cale.demo.repositories.PostRepository;
 import com.cale.demo.repositories.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockReset;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.*;
 
@@ -73,7 +67,6 @@ public class AuthIntegrationTest extends IntegrationTestBase{
         request.setApellido("Perez");
         request.setEmail("gaston@mail.com");
         request.setPassword("123456");
-        request.setPrioridad(1);
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -94,7 +87,6 @@ public class AuthIntegrationTest extends IntegrationTestBase{
         request.setApellido("Perez");
         request.setEmail("gaston@mail.com");
         request.setPassword("123456");
-        request.setPrioridad(1);
 
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("gaston@mail.com");
@@ -122,7 +114,6 @@ public class AuthIntegrationTest extends IntegrationTestBase{
         request.setApellido("Perez");
         request.setEmail("gaston@mail.com");
         request.setPassword("123456");
-        request.setPrioridad(1);
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

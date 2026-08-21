@@ -1,9 +1,6 @@
 package com.cale.demo.controllers;
 
-import com.cale.demo.dtos.PageResponse;
-import com.cale.demo.dtos.PostResponseDto;
-import com.cale.demo.dtos.RegisterRequest;
-import com.cale.demo.dtos.UsuarioResponseDto;
+import com.cale.demo.dtos.*;
 import com.cale.demo.exepciones.ErrorResponse;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.services.UsuarioService;
@@ -49,28 +46,6 @@ public class UsuarioController {
     }
 
     @Operation(
-            summary = "Crear usuario",
-            description = "Crear un nuevo usuario con los parametros indicados"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Usuario creado",
-                    content = @Content(schema = @Schema(implementation = UsuarioResponseDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuarios no creado, paramentros incorrectos",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-            )
-    })
-    //Revisar, o esta deprecado
-    @PostMapping
-    public UsuarioModel guardarUsuario(@RequestBody UsuarioModel usuarioModel){
-        return usuarioService.guardarUsuario(usuarioModel);
-    }
-
-    @Operation(
             summary = "Obtener usuario por ID",
             description = "Devuelve el usuario encontrado"
     )
@@ -107,6 +82,7 @@ public class UsuarioController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
+    //TODO cmabiar UsuarioModel por dto
     @GetMapping(path = "/query")
     public ArrayList<UsuarioModel> obtenerUsuarioPorPrioridad(@RequestParam("prioridad") Integer prioridad){
         return usuarioService.obtenerUsuariosPorPrioridad(prioridad);
@@ -130,6 +106,11 @@ public class UsuarioController {
     @DeleteMapping(path = "/{id}")
     public void eliminarUsuarioPorId(@PathVariable("id") Long id){
         usuarioService.eliminarUsuario(id);
+    }
+
+    @PatchMapping(path = "/{id}/prioridad")
+    public UsuarioResponseDto updatePrioridadDeUsuarioPorId(@PathVariable("id") Long id, @RequestBody PrioridadRequest prioridad){
+        return this.usuarioService.actualizarPrioridad(id,prioridad);
     }
 
 }

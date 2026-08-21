@@ -59,7 +59,6 @@ public class JWTIntegrationTest {
         request.setApellido("Perez");
         request.setEmail(email);
         request.setPassword("123456");
-        request.setPrioridad(1);
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -39,7 +39,7 @@ public class DataInitializer {
                         nuevoUsuario.setApellido("Demo");
                         nuevoUsuario.setEmail("demo@cale.com");
                         nuevoUsuario.setPassword(passwordEncoder.encode("demo1234"));
-                        nuevoUsuario.setPrioridad(1);
+                        nuevoUsuario.setPrioridad(10);
                         nuevoUsuario.setRol(Rol.USER);
 
                         return usuarioRepository.save(nuevoUsuario);

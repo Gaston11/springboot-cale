@@ -40,31 +40,12 @@ public class RegisterRequest {
     @Size(min = 2, max = 50)
     private String apellido;
 
-    @Schema(
-            description = "Prioridad del usuario",
-            example = "1",
-            minimum = "1",
-            maximum = "10"
-    )
-    @NotNull
-    @Min(1)
-    @Max(10)
-    private Integer prioridad;
-
     public String getApellido() {
         return apellido;
     }
 
     public void setApellido(String apellido) {
         this.apellido = apellido;
-    }
-
-    public Integer getPrioridad() {
-        return prioridad;
-    }
-
-    public void setPrioridad(Integer prioridad) {
-        this.prioridad = prioridad;
     }
 
     public String getNombre() {

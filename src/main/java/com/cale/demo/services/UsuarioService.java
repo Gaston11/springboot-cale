@@ -1,8 +1,12 @@
 package com.cale.demo.services;
 
 import com.cale.demo.dtos.PageResponse;
+import com.cale.demo.dtos.PrioridadRequest;
 import com.cale.demo.dtos.UsuarioResponseDto;
+import com.cale.demo.exepciones.NoAutorizadoException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
+import com.cale.demo.models.PostModel;
+import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +22,14 @@ import java.util.Optional;
 @Service
 public class UsuarioService {
     @Autowired //para no crear la instancia nueva
-    UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final CurrentUserService currentUserService;
+
+    public UsuarioService(CurrentUserService currentUserService, UsuarioRepository usuarioRepository) {
+        this.currentUserService = currentUserService;
+        this.usuarioRepository = usuarioRepository;
+    }
+
 
     public PageResponse<UsuarioResponseDto> obtenerUsuarios(Pageable pageable) {
         Page<UsuarioModel> pagina = usuarioRepository.findAll(pageable);
@@ -61,5 +72,18 @@ public class UsuarioService {
         if (this.obtenerPorId(id) != null) {
             usuarioRepository.deleteById(id);
         }
+    }
+
+    public UsuarioResponseDto actualizarPrioridad(long id, PrioridadRequest prioridad) {
+        UsuarioModel usuarioActual = this.currentUserService.getCurrentUser();
+
+        if (usuarioActual.getRol() != Rol.ADMIN ) {
+            throw new NoAutorizadoException("No puedes editar este usuario");
+        }
+
+        UsuarioModel usuario = this.obtenerPorId(id);
+        usuario.setPrioridad(prioridad.getPrioridad());
+        return this.convertirAUsuarioDto(usuarioRepository.save(usuario));
+
     }
 }

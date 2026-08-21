@@ -2,9 +2,7 @@ package com.cale.demo.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 
 import java.util.List;
 
@@ -26,6 +24,8 @@ public class UsuarioModel extends AuditableModel{
     @Column(unique = true)
     private String email;
     @NotNull
+    @Min(1)
+    @Max(10)
     private Integer prioridad; //revisar, no lo tiene que crear el usuario
     @NotNull
     @NotBlank

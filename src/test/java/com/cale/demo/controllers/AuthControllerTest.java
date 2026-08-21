@@ -50,7 +50,6 @@ public class AuthControllerTest {
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setNombre("Cale");
         registerRequest.setApellido("Cale");
-        registerRequest.setPrioridad(1);
         registerRequest.setEmail("prueba@test.com");
         registerRequest.setPassword("123456");
 
@@ -82,7 +81,6 @@ public class AuthControllerTest {
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setNombre("Cale");
         registerRequest.setApellido("Cale");
-        registerRequest.setPrioridad(1);
         registerRequest.setEmail("LALALA");
         registerRequest.setPassword("123456");
 
@@ -113,7 +111,6 @@ public class AuthControllerTest {
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setNombre("Cale");
         registerRequest.setApellido("Cale");
-        registerRequest.setPrioridad(1);
         registerRequest.setEmail("prueba@test.com");
         registerRequest.setPassword("123456");
 
