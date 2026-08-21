@@ -1,6 +1,7 @@
 package com.cale.demo.integrationTest;
 
 import com.cale.demo.dtos.*;
+import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
@@ -8,6 +9,7 @@ import com.cale.demo.repositories.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -106,5 +108,11 @@ public abstract class IntegrationTestBase {
         admin.setRol(Rol.ADMIN);
         usuarioRepository.save(admin);
         return admin.getId();
+    }
+
+    public Long obtenerIdPorEmail(String email) throws Exception {
+        UsuarioModel usuarioModel = usuarioRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("Usuario no encontrado"));
+        return usuarioModel.getId();
     }
 }

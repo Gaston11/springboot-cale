@@ -52,13 +52,52 @@ public class UsuarioIntegrationTest extends IntegrationTestBase {
     private PasswordEncoder passwordEncoder;
 
     @Test
+    void buscarUsuarios() throws Exception {
+        String token = obtenerToken("demo@cale.com","demo1234");
+
+        mockMvc.perform(get("/usuario")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void buscarUsuarioPorPrioridad() throws Exception {
         String token = obtenerToken("demo@cale.com","demo1234");
 
         mockMvc.perform(get("/usuario/query?prioridad=10")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].prioridad").value(10));
+                .andExpect(jsonPath("$[0].nombre").value("Usuario"));
+    }
+
+    @Test
+    void buscarUsuarioPorId() throws Exception {
+        String token = obtenerToken("demo@cale.com","demo1234");
+        Long id = obtenerIdPorEmail("demo@cale.com");
+
+        mockMvc.perform(get("/usuario/{id}",id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void eliminarUsuario() throws Exception {
+        crearUsuarioAdmin("admin@admin.com");
+        registrarUsuario("prueba@prueba.com");
+        Long id = obtenerIdPorEmail("prueba@prueba.com");
+        String token = obtenerToken("admin@admin.com","123456");
+
+        mockMvc.perform(get("/usuario/{id}",id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/usuario/{id}",id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/usuario/{id}",id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
     }
 
     @Test

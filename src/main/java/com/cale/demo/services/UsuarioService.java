@@ -62,10 +62,17 @@ public class UsuarioService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado con ID: " + id));
     }
 
-    public ArrayList<UsuarioModel> obtenerUsuariosPorPrioridad(Integer prioridad) {
-        return Optional.of((ArrayList<UsuarioModel>) usuarioRepository.findByPrioridad(prioridad))
+    public ArrayList<UsuarioResponseDto> obtenerUsuariosPorPrioridad(Integer prioridad) {
+        ArrayList<UsuarioModel> usuarioModels = Optional.of((ArrayList<UsuarioModel>) usuarioRepository.findByPrioridad(prioridad))
                 .filter(ArrayList -> !ArrayList.isEmpty())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario/s no encontrado con prioridad: " + prioridad));
+
+        ArrayList<UsuarioResponseDto>  usuarioResponseDtos = new ArrayList<>();
+        usuarioModels.forEach(usuarioModel -> {
+            UsuarioResponseDto usuarioResponseDto = convertirAUsuarioDto(usuarioModel);
+            usuarioResponseDtos.add(usuarioResponseDto);
+        });
+        return usuarioResponseDtos;
     }
 
     public void eliminarUsuario(Long id) {

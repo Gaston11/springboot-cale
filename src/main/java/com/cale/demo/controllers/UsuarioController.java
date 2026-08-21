@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -82,9 +83,9 @@ public class UsuarioController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    //TODO cmabiar UsuarioModel por dto
+
     @GetMapping(path = "/query")
-    public ArrayList<UsuarioModel> obtenerUsuarioPorPrioridad(@RequestParam("prioridad") Integer prioridad){
+    public ArrayList<UsuarioResponseDto> obtenerUsuarioPorPrioridad(@RequestParam("prioridad") Integer prioridad){
         return usuarioService.obtenerUsuariosPorPrioridad(prioridad);
     }
 
@@ -104,6 +105,7 @@ public class UsuarioController {
             )
     })
     @DeleteMapping(path = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminarUsuarioPorId(@PathVariable("id") Long id){
         usuarioService.eliminarUsuario(id);
     }
