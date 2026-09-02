@@ -5,16 +5,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(RecursoNoEncontradoException.class)
-    public ResponseEntity<ErrorResponse> manejarRuntimeException(RecursoNoEncontradoException ex) {
+    public ResponseEntity<ErrorResponse> manejarRecursoNoEncontradoException(RecursoNoEncontradoException ex) {
 
         ErrorResponse errorResponse = new ErrorResponse(
                 ex.getMessage(),
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoAutorizadoException.class)
-    public ResponseEntity<ErrorResponse> manejarRuntimeException(
+    public ResponseEntity<ErrorResponse> manejarNoAutorizadoException(
             NoAutorizadoException ex) {
 
         ErrorResponse error = new ErrorResponse(
@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(OperacionInvalidaException.class)
-    public ResponseEntity<ErrorResponse> manejarRuntimeException(
+    public ResponseEntity<ErrorResponse> manejarOperacionInvalidaException(
             OperacionInvalidaException ex) {
 
         ErrorResponse error = new ErrorResponse(
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CredencialesInvalidasException.class)
-    public ResponseEntity<ErrorResponse> manejarRuntimeException(
+    public ResponseEntity<ErrorResponse> manejarCredencialesInvalidasException(
             CredencialesInvalidasException ex) {
 
         ErrorResponse error = new ErrorResponse(
@@ -67,16 +67,28 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> manejarValidaciones(MethodArgumentNotValidException ex) {
-        Map<String,String> errores = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach((error) ->{
-            errores.put(error.getField(), error.getDefaultMessage());
-        });
-        return ResponseEntity.badRequest().body(errores);
+    public ResponseEntity<ErrorResponse> manejarValidaciones(
+            MethodArgumentNotValidException ex) {
+
+        String mensaje = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+
+        ErrorResponse error = new ErrorResponse(
+                mensaje,
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
     }
 
     @ExceptionHandler(RecursoYaExisteException.class)
-    public ResponseEntity<ErrorResponse> manejarRuntimeException(
+    public ResponseEntity<ErrorResponse> manejarRecursoYaExisteException(
             RecursoYaExisteException ex) {
 
         ErrorResponse error = new ErrorResponse(
@@ -85,5 +97,34 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> manejarErrorInterno(Exception ex) {
+
+        ErrorResponse error = new ErrorResponse(
+                "Error interno del servidor",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(error);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> manejarRecursoWebNoEncontrado(
+            NoResourceFoundException ex) {
+
+        ErrorResponse error = new ErrorResponse(
+                "Recurso no encontrado",
+                HttpStatus.NOT_FOUND.value(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(error);
     }
 }
