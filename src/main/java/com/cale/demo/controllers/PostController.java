@@ -34,18 +34,13 @@ public class PostController {
 
     @Operation(
             summary = "Obtener posts",
-            description = "Devuelve los posts por pagina."
+            description = "Devuelve los posts de forma paginada y permite filtrar por título o usuario."
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Post encontrados",
-                    content = @Content(schema = @Schema(implementation = PostResponseDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Posts no encontrados",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    description = "Posts obtenidos correctamente",
+                    content = @Content(schema = @Schema(implementation = PageResponse.class))
             )
     })
     @GetMapping
@@ -70,7 +65,7 @@ public class PostController {
                     content = @Content(schema = @Schema(implementation = PostResponseDto.class))
             ),
             @ApiResponse(
-                    responseCode = "403",
+                    responseCode = "400",
                     description = "Post no formado correctamente",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
@@ -129,7 +124,7 @@ public class PostController {
     )
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "201",
+                    responseCode = "200",
                     description = "Post Editado correctamente",
                     content = @Content(schema = @Schema(implementation = PostResponseDto.class))
             ),
@@ -139,7 +134,7 @@ public class PostController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
-                    responseCode = "401",
+                    responseCode = "403",
                     description = "No autorizado para editar el Post",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
@@ -156,7 +151,7 @@ public class PostController {
     )
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Comentario creado correctamente",
                     content = @Content(schema = @Schema(implementation = ComentarioResponseDto.class))
             ),
