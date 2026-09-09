@@ -28,51 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-public class JWTIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private CategoriaRepository categoriaRepository;
-
-    private CategoriaModel categoria;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private ComentarioRepository comentarioRepository;
-
-    void registrarUsuario(String email) throws Exception {
-        RegisterRequest request = new RegisterRequest();
-        request.setNombre("Gaston");
-        request.setApellido("Perez");
-        request.setEmail(email);
-        request.setPassword("123456");
-
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
-    }
-
-    @BeforeEach
-    void setUp() {
-        CategoriaModel categoria = new CategoriaModel();
-        categoria.setNombre("Java");
-
-        this.categoria = categoriaRepository.save(categoria);
-    }
+public class JWTIntegrationTest extends IntegrationTestBase {
 
     @Test
     void crearPostSinAutorizacionDevuelve403() throws Exception {
@@ -80,7 +36,7 @@ public class JWTIntegrationTest {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Post 1");
         postRequestDto.setDescripcion("Descripcion 1");
-        postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
+        //postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
 
         mockMvc.perform(post("/post")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -95,7 +51,7 @@ public class JWTIntegrationTest {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Post 1");
         postRequestDto.setDescripcion("Descripcion 1");
-        postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
+        //postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
 
         mockMvc.perform(post("/post")
                         .header("Authorization", "Bearer " + "tokenFalso")

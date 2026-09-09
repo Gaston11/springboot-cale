@@ -4,6 +4,8 @@ import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.LoginResponse;
 import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
+import com.cale.demo.exepciones.GlobalExceptionHandler;
+import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoYaExisteException;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
@@ -18,6 +20,7 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.HttpClientErrorException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -178,6 +181,36 @@ public class AuthControllerTest {
                 .andExpect(status().isUnauthorized());
 
         verify(authService).login(any(LoginRequest.class));
+
+    }
+
+    @Test
+    void loginDevuelve400SiMailEstaVacio() throws Exception {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("");
+        loginRequest.setPassword("123456");
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
+
+        verify(authService,never()).login(any());
+
+    }
+
+    @Test
+    void loginDevuelve400SiPasswordEstaVacio() throws Exception {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("prueba@mail.com");
+        loginRequest.setPassword("");
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
+
+        verify(authService,never()).login(any());
 
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/usuario")
@@ -85,7 +86,7 @@ public class UsuarioController {
     })
 
     @GetMapping(path = "/query")
-    public ArrayList<UsuarioResponseDto> obtenerUsuarioPorPrioridad(@RequestParam("prioridad") Integer prioridad){
+    public List<UsuarioResponseDto> obtenerUsuarioPorPrioridad(@RequestParam("prioridad") Integer prioridad){
         return usuarioService.obtenerUsuariosPorPrioridad(prioridad);
     }
 

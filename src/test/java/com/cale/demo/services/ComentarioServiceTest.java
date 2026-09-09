@@ -125,4 +125,18 @@ public class ComentarioServiceTest {
         assertEquals("Los Ids no son iguales",1L,comentarioModelGuardado.getId());
         assertEquals("Los comentarios no son iguales", "Comentario editado", comentarioModelGuardado.getComentario());
     }
+
+    @Test
+    void editarComentarioDebeLanzarExcepcionSiNoExiste() {
+        when(comentarioRepository.findById(999L))
+                .thenReturn(Optional.empty());
+
+        ComentarioRequestDto comentarioRequestDto = new ComentarioRequestDto();
+        comentarioRequestDto.setComentario("Comentario editado");
+
+        Assertions.assertThrows(
+                RecursoNoEncontradoException.class,
+                () -> comentarioService.editarComentario(999L, comentarioRequestDto)
+        );
+    }
 }

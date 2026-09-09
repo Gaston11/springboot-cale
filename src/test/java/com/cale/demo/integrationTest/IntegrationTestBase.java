@@ -1,7 +1,6 @@
 package com.cale.demo.integrationTest;
 
 import com.cale.demo.dtos.*;
-import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
@@ -20,10 +19,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public abstract class IntegrationTestBase {
     @Autowired
-    private MockMvc mockMvc;
+    public MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    public ObjectMapper objectMapper;
 
     @Autowired
     private UsuarioRepository usuarioRepository;

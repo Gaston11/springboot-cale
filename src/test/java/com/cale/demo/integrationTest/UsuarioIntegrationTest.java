@@ -1,26 +1,15 @@
 package com.cale.demo.integrationTest;
 
-import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.PrioridadRequest;
-import com.cale.demo.dtos.RegisterRequest;
-import com.cale.demo.models.CategoriaModel;
-import com.cale.demo.repositories.CategoriaRepository;
-import com.cale.demo.repositories.PostRepository;
 import com.cale.demo.repositories.UsuarioRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
-import static io.jsonwebtoken.Jwts.header;
-import static org.hamcrest.Matchers.startsWith;
-import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,24 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UsuarioIntegrationTest extends IntegrationTestBase {
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
     private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private CategoriaRepository categoriaRepository;
-
-    private CategoriaModel categoria;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Test
     void buscarUsuarios() throws Exception {
@@ -77,11 +49,12 @@ public class UsuarioIntegrationTest extends IntegrationTestBase {
 
         mockMvc.perform(get("/usuario/{id}",id)
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("demo@cale.com"));
     }
 
     @Test
-    void eliminarUsuario() throws Exception {
+    void adminPuedeEliminarUsuario() throws Exception {
         crearUsuarioAdmin("admin@admin.com");
         registrarUsuario("prueba@prueba.com");
         Long id = obtenerIdPorEmail("prueba@prueba.com");
@@ -138,6 +111,44 @@ public class UsuarioIntegrationTest extends IntegrationTestBase {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.prioridad").value(1));
+    }
+
+    @Test
+    void buscarUsuarioPorIdInexistenteDevuelve404() throws Exception {
+        String token = obtenerToken("demo@cale.com", "demo1234");
+
+        mockMvc.perform(get("/usuario/{id}", 999999L)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void buscarUsuarioPorPrioridadInexistenteDevuelve404() throws Exception {
+        String token = obtenerToken("demo@cale.com", "demo1234");
+
+        mockMvc.perform(get("/usuario/query?prioridad=999")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void usuarioNoPuedeEliminarUsuario() throws Exception {
+        registrarUsuario("user@user.com");
+        registrarUsuario("prueba@prueba.com");
+        Long id = obtenerIdPorEmail("prueba@prueba.com");
+        String token = obtenerToken("user@user.com","123456");
+
+        mockMvc.perform(get("/usuario/{id}",id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/usuario/{id}",id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/usuario/{id}",id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
     }
 
 }

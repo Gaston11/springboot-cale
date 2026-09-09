@@ -259,7 +259,7 @@ public class PostControllerTest {
     }
 
     @Test
-    void obtenerComentarioDevuelve400SiPostNoExiste() throws Exception {
+    void obtenerComentarioDevuelve404SiPostNoExiste() throws Exception {
 
         when(postService.obtenerComentarios(eq(1L))).thenThrow(RecursoNoEncontradoException.class);
 
