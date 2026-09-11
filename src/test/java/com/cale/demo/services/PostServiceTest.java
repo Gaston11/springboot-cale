@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -487,6 +488,68 @@ public class PostServiceTest {
 
         Assertions.assertEquals(1L, resultado.getId());
         Assertions.assertEquals("Comentario 1", resultado.getComentario());
+    }
+
+    @Test
+    void guardarComentarioEnUnPostQueNoExisteLanzaExcepcion() {
+
+        UsuarioModel usuarioActual = new UsuarioModel();
+        usuarioActual.setId(1L);
+        usuarioActual.setNombre("Usuario");
+        usuarioActual.setRol(Rol.USER);
+
+        ComentarioRequestDto comentarioRequestDto = new ComentarioRequestDto();
+        comentarioRequestDto.setComentario("Comentario 1");
+
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
+        when(postRepository.findById(99L)).thenThrow(RecursoNoEncontradoException.class);
+
+        Assertions.assertThrows(RecursoNoEncontradoException.class, () -> {
+            postService.guardarComentario(99L, comentarioRequestDto);
+        });
+        verify(comentarioRepository, never()).save(any(ComentarioModel.class));
+
+    }
+
+    @Test
+    void obtenerComentariosDevuelveLosComentariosCorrectamente() {
+
+        UsuarioModel usuarioActual = new UsuarioModel();
+        usuarioActual.setId(1L);
+        usuarioActual.setNombre("Usuario");
+        usuarioActual.setRol(Rol.USER);
+
+        PostModel post = new PostModel();
+        post.setId(1L);
+        post.setTitulo("titulo");
+
+        ComentarioModel comentarioGuardado = new ComentarioModel();
+        comentarioGuardado.setId(1L);
+        comentarioGuardado.setComentario("Comentario 1");
+        comentarioGuardado.setUsuario(usuarioActual);
+        comentarioGuardado.setPost(post);
+
+        when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+        when(comentarioRepository.findByPostId(1L)).thenReturn(Set.of(comentarioGuardado));
+
+        List<ComentarioResponseDto> resultado =
+                postService.obtenerComentarios(1L);
+
+        Assertions.assertEquals("Comentario 1", resultado.get(0).getComentario());
+    }
+
+    @Test
+    void obtenerComentariosLanzaExeptionSiNoExistePost() {
+
+        UsuarioModel usuarioActual = new UsuarioModel();
+        usuarioActual.setId(1L);
+        usuarioActual.setNombre("Usuario");
+        usuarioActual.setRol(Rol.USER);
+
+        when(postRepository.findById(99L)).thenThrow(RecursoNoEncontradoException.class);
+
+        Assertions.assertThrows(RecursoNoEncontradoException.class,
+                ()-> postService.obtenerComentarios(99L));
     }
 
 }

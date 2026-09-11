@@ -350,5 +350,22 @@ public class PostIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void consultarPostPorTituloDevuelvePostCreado() throws Exception {
+        registrarUsuario("gaston@mail.com");
+        String token = obtenerToken("gaston@mail.com", "123456");
+
+        Long postId = crearPost(token);
+
+        mockMvc.perform(get("/post")
+                        .param("titulo", "Post 1")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contenido[0].id").value(postId))
+                .andExpect(jsonPath("$.contenido[0].titulo").value("Post 1"))
+                .andExpect(jsonPath("$.contenido[0].descripcion").value("Descripcion 1"))
+                .andExpect(jsonPath("$.totalElementos").value(1));
+    }
+
 
 }
