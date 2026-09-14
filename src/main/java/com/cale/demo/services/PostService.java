@@ -26,14 +26,12 @@ public class PostService {
     @Autowired
     private final PostRepository postRepository;
     private final CategoriaRepository categoriaRepository;
-    private final UsuarioRepository usuarioRepository;
     private final CurrentUserService currentUserService;
     private final ComentarioRepository comentarioRepository;
 
     public PostService(UsuarioRepository usuarioRepository, PostRepository postRepository, CategoriaRepository categoriaRepository, CurrentUserService currentUserService, ComentarioRepository comentarioRepository) {
         this.postRepository = postRepository;
         this.categoriaRepository = categoriaRepository;
-        this.usuarioRepository = usuarioRepository;
         this.currentUserService = currentUserService;
         this.comentarioRepository = comentarioRepository;
     }

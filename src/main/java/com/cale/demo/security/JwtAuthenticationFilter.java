@@ -45,23 +45,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = authHeader.substring(7);
             String email = jwtService.extraerEmail(token);
+
             UsuarioModel usuarioModel = usuarioRepository.findByEmail(email)
                     .orElseThrow(() ->
-                    new UsernameNotFoundException("Usuario no encontrado"));
-            List<GrantedAuthority> grantedAuthorities = List.of( new SimpleGrantedAuthority(
-                    "ROLE_" + usuarioModel.getRol().name()));
+                            new UsernameNotFoundException("Usuario no encontrado"));
 
-            // SecurityContextHolder: “todavía NO hay usuario autenticado en este request”
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        email,
-                        null,
-                        grantedAuthorities); // “este usuario ya está autenticado”
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); // agrego ip, sesion, detalles http
-                SecurityContextHolder.getContext().setAuthentication(authToken); // “este request pertenece a este usuario"
+            List<GrantedAuthority> grantedAuthorities = List.of(
+                    new SimpleGrantedAuthority(
+                            "ROLE_" + usuarioModel.getRol().name()));
+
+            if (email != null &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                email,
+                                null,
+                                grantedAuthorities);
+
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authToken);
             }
+
             filterChain.doFilter(request, response);
-        }catch (ExpiredJwtException e){
+
+        }
+        catch (ExpiredJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("""
@@ -70,17 +82,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             """);
         }
-        catch (JwtException e) {
-
+        catch (UsernameNotFoundException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-
             response.getWriter().write("""
             {
-                "mensaje": "Token inválido"
+                "mensaje": "Usuario no encontrado"
             }
             """);
-
+        }
+        catch (JwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("""
+        {
+            "mensaje": "Token inválido"
+        }
+        """);
         }
     }
 }

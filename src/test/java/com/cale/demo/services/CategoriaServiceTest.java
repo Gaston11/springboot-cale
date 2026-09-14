@@ -3,21 +3,17 @@ package com.cale.demo.services;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.repositories.CategoriaRepository;
-import com.cale.demo.repositories.UsuarioRepository;
-import com.cale.demo.security.JwtService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -110,7 +106,6 @@ public class CategoriaServiceTest {
         Assertions.assertEquals(1L, resultado.getId());
         Assertions.assertEquals("Categoria 1", resultado.getNombre());
 
-        //Assertions.assertDoesNotThrow(() -> categoriaService.guardarCategoria(categoriaModel));
         verify(categoriaRepository).save(categoriaModel);
     }
 
