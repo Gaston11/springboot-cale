@@ -1,13 +1,16 @@
 package com.cale.demo.integrationTest;
 
 import com.cale.demo.dtos.*;
+import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
+import com.cale.demo.security.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -18,10 +21,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public abstract class IntegrationTestBase {
     @Autowired
-    private MockMvc mockMvc;
+    public MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    public ObjectMapper objectMapper;
+    private JwtService jwtService;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -35,7 +39,7 @@ public abstract class IntegrationTestBase {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Post 1");
         postRequestDto.setDescripcion("Descripcion 1");
-        postRequestDto.setCategoriaIds(Set.of(crearCategoria("Java",token)));
+        postRequestDto.setCategoriaIds(Set.of(crearCategoria("Java")));
 
 
         MvcResult postResult = mockMvc.perform(post("/post")
@@ -51,7 +55,13 @@ public abstract class IntegrationTestBase {
 
     }
 
-    public Long crearCategoria(String nombre, String token) throws Exception {
+    public Long crearCategoria(String nombre) throws Exception {
+        String mailAdmin = "adminCategoria@mail.com";
+        if (this.usuarioRepository.findByEmail(mailAdmin).isEmpty()) {
+            crearUsuarioAdmin(mailAdmin);
+        }
+        String token = obtenerToken(mailAdmin,"123456");
+
         CategoriaModel categoriaModel = new CategoriaModel();
         categoriaModel.setNombre(nombre);
 
@@ -73,7 +83,6 @@ public abstract class IntegrationTestBase {
         request.setApellido("Perez");
         request.setEmail(email);
         request.setPassword("123456");
-        request.setPrioridad(1);
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -108,4 +117,24 @@ public abstract class IntegrationTestBase {
         usuarioRepository.save(admin);
         return admin.getId();
     }
+
+    public Long obtenerIdPorEmail(String email) throws Exception {
+        UsuarioModel usuarioModel = usuarioRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("Usuario no encontrado"));
+        return usuarioModel.getId();
+    }
+
+    public void validarUsuarioAdmin(String token) throws Exception {
+        String subToken = token.substring(7);
+        String email = jwtService.extraerEmail(subToken);
+
+        UsuarioModel usuarioModel = usuarioRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("Usuario no encontrado"));
+
+        if (usuarioModel.getRol() != Rol.ADMIN) {
+            throw new OperacionInvalidaException("Usuario no puede crear categoria");
+        }
+    }
+
 }

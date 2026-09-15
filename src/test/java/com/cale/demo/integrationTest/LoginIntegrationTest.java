@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -20,14 +21,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class LoginIntegrationTest extends IntegrationTestBase{
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Test
-    void loginConEmailInvalidoDevulve401() throws Exception {
+    void loginConEmailNoRegistradoDevuelve401() throws Exception {
         registrarUsuario("gaston@mail.com");
 
         LoginRequest loginRequest = new LoginRequest();
@@ -46,12 +42,27 @@ public class LoginIntegrationTest extends IntegrationTestBase{
         registrarUsuario("gaston@mail.com");
 
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("mail@mail.com");
+        loginRequest.setEmail("gaston@mail.com");
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest());
 
+    }
+
+    @Test
+    void loginConCredencialesValidasDevuelve200() throws Exception {
+        registrarUsuario("gaston@mail.com");
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("gaston@mail.com");
+        loginRequest.setPassword("123456");
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isNotEmpty());
     }
 }

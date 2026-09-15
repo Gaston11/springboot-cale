@@ -121,7 +121,7 @@ public class PostIntegrationTest extends IntegrationTestBase {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Java editado");
         postRequestDto.setDescripcion("Spring Boot editado");
-        postRequestDto.setCategoriaIds(Set.of(this.crearCategoria("java",token)));
+        postRequestDto.setCategoriaIds(Set.of(this.crearCategoria("java")));
 
         mockMvc.perform(put("/post/{id}",postId)
                         .header("Authorization", "Bearer " + token)
@@ -243,7 +243,7 @@ public class PostIntegrationTest extends IntegrationTestBase {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Java editado");
         postRequestDto.setDescripcion("Spring Boot editado");
-        Long idCategoria = this.crearCategoria("nuevo",tokenNuevo);
+        Long idCategoria = this.crearCategoria("nuevo");
         postRequestDto.setCategoriaIds(Set.of(idCategoria));
 
         mockMvc.perform(put("/post/{id}",postId)
@@ -265,7 +265,7 @@ public class PostIntegrationTest extends IntegrationTestBase {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Java editado por admin");
         postRequestDto.setDescripcion("Spring Boot editado por admin");
-        Long idCategoria = this.crearCategoria("nuevo",tokenNuevo);
+        Long idCategoria = this.crearCategoria("nuevo");
         postRequestDto.setCategoriaIds(Set.of(idCategoria));
 
         mockMvc.perform(put("/post/{id}",postId)
@@ -299,6 +299,7 @@ public class PostIntegrationTest extends IntegrationTestBase {
 
     @Test
     void crearUnPostConUsuarioAYUsuarioBIntentaEditar() throws Exception {
+        Long idCategoria = this.crearCategoria("nuevo");
         String token = registrarYLoguear("usuarioA@mail.com");
         String tokenB = registrarYLoguear("usuarioB@mail.com");
 
@@ -307,7 +308,6 @@ public class PostIntegrationTest extends IntegrationTestBase {
         PostRequestDto postRequestDto2 = new PostRequestDto();
         postRequestDto2.setTitulo("Java Editado");
         postRequestDto2.setDescripcion("Spring Boot Editado");
-        Long idCategoria = this.crearCategoria("nuevo",tokenB);
         postRequestDto2.setCategoriaIds(Set.of(idCategoria));
 
         mockMvc.perform(put("/post/{id}",postId)
@@ -324,7 +324,7 @@ public class PostIntegrationTest extends IntegrationTestBase {
 
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setDescripcion("Spring Boot");
-        Long idCategoria = this.crearCategoria("nuevo",token);
+        Long idCategoria = this.crearCategoria("nuevo");
         postRequestDto.setCategoriaIds(Set.of(idCategoria));
 
         mockMvc.perform(post("/post")
@@ -348,6 +348,23 @@ public class PostIntegrationTest extends IntegrationTestBase {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(postRequestDto)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void consultarPostPorTituloDevuelvePostCreado() throws Exception {
+        registrarUsuario("gaston@mail.com");
+        String token = obtenerToken("gaston@mail.com", "123456");
+
+        Long postId = crearPost(token);
+
+        mockMvc.perform(get("/post")
+                        .param("titulo", "Post 1")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contenido[0].id").value(postId))
+                .andExpect(jsonPath("$.contenido[0].titulo").value("Post 1"))
+                .andExpect(jsonPath("$.contenido[0].descripcion").value("Descripcion 1"))
+                .andExpect(jsonPath("$.totalElementos").value(1));
     }
 
 

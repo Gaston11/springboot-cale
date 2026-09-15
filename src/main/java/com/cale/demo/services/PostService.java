@@ -26,14 +26,12 @@ public class PostService {
     @Autowired
     private final PostRepository postRepository;
     private final CategoriaRepository categoriaRepository;
-    private final UsuarioRepository usuarioRepository;
     private final CurrentUserService currentUserService;
     private final ComentarioRepository comentarioRepository;
 
     public PostService(UsuarioRepository usuarioRepository, PostRepository postRepository, CategoriaRepository categoriaRepository, CurrentUserService currentUserService, ComentarioRepository comentarioRepository) {
         this.postRepository = postRepository;
         this.categoriaRepository = categoriaRepository;
-        this.usuarioRepository = usuarioRepository;
         this.currentUserService = currentUserService;
         this.comentarioRepository = comentarioRepository;
     }
@@ -146,30 +144,30 @@ public class PostService {
         ComentarioModel comentarioModel = new ComentarioModel();
         ComentarioResponseDto comentarioResponseDto = new ComentarioResponseDto();
 
-        if (postActual != null){
-            comentarioModel.setPost(postActual);
-            comentarioModel.setComentario(comentarioRequestDto.getComentario());
-            comentarioModel.setUsuario(usuarioModel);
-            this.comentarioRepository.save(comentarioModel);
-            comentarioResponseDto.setComentario(comentarioModel.getComentario());
-            comentarioResponseDto.setId(comentarioModel.getId());
-            comentarioResponseDto.setFechaCreacion(comentarioModel.getFechaCreacion());
-            comentarioResponseDto.setFechaActualizacion(comentarioModel.getFechaModificacion());
-        }
+        comentarioModel.setPost(postActual);
+        comentarioModel.setComentario(comentarioRequestDto.getComentario());
+        comentarioModel.setUsuario(usuarioModel);
+        this.comentarioRepository.save(comentarioModel);
+        comentarioResponseDto.setComentario(comentarioModel.getComentario());
+        comentarioResponseDto.setId(comentarioModel.getId());
+        comentarioResponseDto.setFechaCreacion(comentarioModel.getFechaCreacion());
+        comentarioResponseDto.setFechaActualizacion(comentarioModel.getFechaModificacion());
+
         return comentarioResponseDto;
     }
 
     public List<ComentarioResponseDto> obtenerComentarios(Long id) {
         List<ComentarioResponseDto> comentarioResponseDtos = new ArrayList<>();
-        if (obtenerPostModelPorID(id) != null){
-            Set<ComentarioModel> comentarioModelSet = new HashSet<>();
-            comentarioModelSet = this.comentarioRepository.findByPostId(id);
-            for (ComentarioModel comentarioModel : comentarioModelSet) {
-                ComentarioResponseDto comentarioResponseDto = new ComentarioResponseDto();
-                comentarioResponseDto.setComentario(comentarioModel.getComentario());
-                comentarioResponseDto.setId(comentarioModel.getId());
-                comentarioResponseDtos.add(comentarioResponseDto);
-            }
+
+        obtenerPostModelPorID(id);
+
+        Set<ComentarioModel> comentarioModelSet = new HashSet<>();
+        comentarioModelSet = this.comentarioRepository.findByPostId(id);
+        for (ComentarioModel comentarioModel : comentarioModelSet) {
+            ComentarioResponseDto comentarioResponseDto = new ComentarioResponseDto();
+            comentarioResponseDto.setComentario(comentarioModel.getComentario());
+            comentarioResponseDto.setId(comentarioModel.getId());
+            comentarioResponseDtos.add(comentarioResponseDto);
         }
         return comentarioResponseDtos;
     }

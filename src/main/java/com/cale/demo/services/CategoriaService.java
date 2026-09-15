@@ -1,33 +1,53 @@
 package com.cale.demo.services;
 
+import com.cale.demo.exepciones.NoAutorizadoException;
+import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.CategoriaModel;
+import com.cale.demo.models.Rol;
+import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public class CategoriaService {
+
     @Autowired
     private CategoriaRepository categoriaRepository;
+    private final CurrentUserService currentUserService;
 
-    public ArrayList<CategoriaModel> obetenerCategorias() {
-        return (ArrayList<CategoriaModel>) categoriaRepository.findAll();
+    public CategoriaService(CategoriaRepository categoriaRepository, CurrentUserService currentUserService) {
+        this.categoriaRepository = categoriaRepository;
+        this.currentUserService = currentUserService;
+    }
+
+    public List<CategoriaModel> obtenerCategorias() {
+        return categoriaRepository.findAll();
     }
 
     public CategoriaModel guardarCategoria(CategoriaModel categoriaModel) {
+        UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
+        if (usuarioModel.getRol() != Rol.ADMIN){
+            throw new NoAutorizadoException("No puedes crear categoria");
+        }
         return categoriaRepository.save(categoriaModel);
     }
 
-    public Optional<CategoriaModel> obtenerCategoriaPorID(Long id) {
-        return categoriaRepository.findById(id);
+    public CategoriaModel obtenerCategoriaPorID(Long id) {
+        return categoriaRepository.findById(id).
+                orElseThrow(() ->
+                        new RecursoNoEncontradoException("Categoria no encontrada"));
     }
 
     public void eliminarCategoria(Long id) {
-        if (categoriaRepository.existsById(id)) {
-            categoriaRepository.deleteById(id);
+        this.obtenerCategoriaPorID(id);
+        UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
+        if (usuarioModel.getRol() != Rol.ADMIN){
+            throw new NoAutorizadoException("No puedes eliminar categoria");
         }
+        categoriaRepository.deleteById(id);
     }
 }

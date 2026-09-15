@@ -37,6 +37,8 @@ error.log
 
 ### Application configuration ###
 src/main/resources/application.properties
-
+src/main/resources/application-postgres.properties
+src/main/resources/application-supabase.properties
 build.log
 .env
+

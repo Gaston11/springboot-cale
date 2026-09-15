@@ -42,9 +42,13 @@ public class ComentarioService {
     }
 
     public void eliminarComentario(long id) {
-       if (this.obtenerComentarioModelPorID(id) != null) {
-           comentarioRepository.deleteById(id);
-       }
+        ComentarioModel comentarioModel = this.obtenerComentarioModelPorID(id);
+        UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
+
+        if ((comentarioModel.getUsuario().getId() != usuarioModel.getId()) && (usuarioModel.getRol() != Rol.ADMIN)) {
+            throw new NoAutorizadoException("El usuario no tiene permiso para editar este comentario");
+        }
+        comentarioRepository.deleteById(id);
     }
 
     private ComentarioModel obtenerComentarioModelPorID(Long id) {

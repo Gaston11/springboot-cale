@@ -144,6 +144,6 @@ public class AuthServiceTest {
         when(passwordEncoder.matches("password_incorrecta","passwordHash")).thenReturn(false);
 
         Assertions.assertThrows(CredencialesInvalidasException.class, ()-> authService.login(loginRequest));
-
+        verify(jwtService, never()).generarToken(anyString());
     }
 }

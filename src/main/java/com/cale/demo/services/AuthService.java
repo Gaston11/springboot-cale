@@ -11,6 +11,7 @@ import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
 import com.cale.demo.security.JwtService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,8 @@ public class AuthService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    @Value("${app.prioridad.maximo:10}")
+    private int prioridadMaximo;
 
     public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.usuarioRepository = usuarioRepository;
@@ -36,7 +39,7 @@ public class AuthService {
         usuarioModel.setNombre(registerRequest.getNombre());
         usuarioModel.setApellido(registerRequest.getApellido());
         usuarioModel.setEmail(email);
-        usuarioModel.setPrioridad(registerRequest.getPrioridad());
+        usuarioModel.setPrioridad(prioridadMaximo);
 
         String passwordHash = this.passwordEncoder.encode(registerRequest.getPassword());
         usuarioModel.setPassword(passwordHash);

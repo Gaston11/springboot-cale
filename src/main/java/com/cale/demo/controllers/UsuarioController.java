@@ -1,9 +1,6 @@
 package com.cale.demo.controllers;
 
-import com.cale.demo.dtos.PageResponse;
-import com.cale.demo.dtos.PostResponseDto;
-import com.cale.demo.dtos.RegisterRequest;
-import com.cale.demo.dtos.UsuarioResponseDto;
+import com.cale.demo.dtos.*;
 import com.cale.demo.exepciones.ErrorResponse;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.services.UsuarioService;
@@ -17,9 +14,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/usuario")
@@ -46,28 +45,6 @@ public class UsuarioController {
     @GetMapping
     public PageResponse<UsuarioResponseDto> obtenerUsuarios(Pageable pageable) {
         return usuarioService.obtenerUsuarios(pageable);
-    }
-
-    @Operation(
-            summary = "Crear usuario",
-            description = "Crear un nuevo usuario con los parametros indicados"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Usuario creado",
-                    content = @Content(schema = @Schema(implementation = UsuarioResponseDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuarios no creado, paramentros incorrectos",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-            )
-    })
-    //Revisar, o esta deprecado
-    @PostMapping
-    public UsuarioModel guardarUsuario(@RequestBody UsuarioModel usuarioModel){
-        return usuarioService.guardarUsuario(usuarioModel);
     }
 
     @Operation(
@@ -107,8 +84,9 @@ public class UsuarioController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
+
     @GetMapping(path = "/query")
-    public ArrayList<UsuarioModel> obtenerUsuarioPorPrioridad(@RequestParam("prioridad") Integer prioridad){
+    public List<UsuarioResponseDto> obtenerUsuarioPorPrioridad(@RequestParam("prioridad") Integer prioridad){
         return usuarioService.obtenerUsuariosPorPrioridad(prioridad);
     }
 
@@ -128,8 +106,14 @@ public class UsuarioController {
             )
     })
     @DeleteMapping(path = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminarUsuarioPorId(@PathVariable("id") Long id){
         usuarioService.eliminarUsuario(id);
+    }
+
+    @PatchMapping(path = "/{id}/prioridad")
+    public UsuarioResponseDto updatePrioridadDeUsuarioPorId(@PathVariable("id") Long id, @RequestBody PrioridadRequest prioridad){
+        return this.usuarioService.actualizarPrioridad(id,prioridad);
     }
 
 }

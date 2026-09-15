@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Set;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -28,52 +29,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-public class JWTIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+public class JWTIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private CategoriaRepository categoriaRepository;
-
-    private CategoriaModel categoria;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private ComentarioRepository comentarioRepository;
-
-    void registrarUsuario(String email) throws Exception {
-        RegisterRequest request = new RegisterRequest();
-        request.setNombre("Gaston");
-        request.setApellido("Perez");
-        request.setEmail(email);
-        request.setPassword("123456");
-        request.setPrioridad(1);
-
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
-    }
-
-    @BeforeEach
-    void setUp() {
-        CategoriaModel categoria = new CategoriaModel();
-        categoria.setNombre("Java");
-
-        this.categoria = categoriaRepository.save(categoria);
-    }
 
     @Test
     void crearPostSinAutorizacionDevuelve403() throws Exception {
@@ -81,7 +40,7 @@ public class JWTIntegrationTest {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Post 1");
         postRequestDto.setDescripcion("Descripcion 1");
-        postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
+        //postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
 
         mockMvc.perform(post("/post")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,7 +55,7 @@ public class JWTIntegrationTest {
         PostRequestDto postRequestDto = new PostRequestDto();
         postRequestDto.setTitulo("Post 1");
         postRequestDto.setDescripcion("Descripcion 1");
-        postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
+        //postRequestDto.setCategoriaIds(Set.of(categoria.getId()));
 
         mockMvc.perform(post("/post")
                         .header("Authorization", "Bearer " + "tokenFalso")
@@ -104,5 +63,26 @@ public class JWTIntegrationTest {
                         .content(objectMapper.writeValueAsString(postRequestDto)))
                 .andExpect(status().isUnauthorized());
 
+    }
+
+    @Test
+    void tokenValidoPeroUsuarioNoExisteDevuelve401() throws Exception {
+        registrarUsuario("gaston@mail.com");
+
+        String token = obtenerToken("gaston@mail.com", "123456");
+        Long usuarioId = obtenerIdPorEmail("gaston@mail.com");
+
+        usuarioRepository.deleteById(usuarioId);
+
+        mockMvc.perform(get("/post")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void autorizacionConEsquemaIncorrectoDevuelve403() throws Exception {
+        mockMvc.perform(get("/post")
+                        .header("Authorization", "Basic abc123"))
+                .andExpect(status().isForbidden());
     }
 }

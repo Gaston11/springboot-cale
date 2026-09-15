@@ -1,9 +1,6 @@
 package com.cale.demo.controllers;
 
-import com.cale.demo.dtos.ComentarioRequestDto;
-import com.cale.demo.dtos.ComentarioResponseDto;
-import com.cale.demo.dtos.PostRequestDto;
-import com.cale.demo.dtos.PostResponseDto;
+import com.cale.demo.dtos.*;
 import com.cale.demo.exepciones.NoAutorizadoException;
 import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
@@ -15,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -259,7 +257,7 @@ public class PostControllerTest {
     }
 
     @Test
-    void obtenerComentarioDevuelve400SiPostNoExiste() throws Exception {
+    void obtenerComentarioDevuelve404SiPostNoExiste() throws Exception {
 
         when(postService.obtenerComentarios(eq(1L))).thenThrow(RecursoNoEncontradoException.class);
 
@@ -267,5 +265,36 @@ public class PostControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(postService).obtenerComentarios(eq(1L));
+    }
+
+    @Test
+    void obtenerPostsRetorna200() throws Exception {
+        PostResponseDto postResponseDto = new PostResponseDto();
+        postResponseDto.setId(1L);
+        postResponseDto.setTitulo("Post 1");
+        postResponseDto.setDescripcion("Descripcion 1");
+
+        PageResponse<PostResponseDto> pageResponse =
+                new PageResponse<>(
+                        List.of(postResponseDto),
+                        0,
+                        10,
+                        1L,
+                        1
+                );
+
+        when(postService.obtenerPosts(any(Pageable.class), isNull(), isNull()))
+                .thenReturn(pageResponse);
+
+        mockMvc.perform(get("/post"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contenido[0].id").value(1))
+                .andExpect(jsonPath("$.contenido[0].titulo").value("Post 1"))
+                .andExpect(jsonPath("$.paginaActual").value(0))
+                .andExpect(jsonPath("$.tamanioPagina").value(10))
+                .andExpect(jsonPath("$.totalElementos").value(1))
+                .andExpect(jsonPath("$.totalPaginas").value(1));
+
+        verify(postService).obtenerPosts(any(Pageable.class), isNull(), isNull());
     }
 }

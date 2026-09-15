@@ -1,6 +1,5 @@
 package com.cale.demo.controllers;
 
-import com.cale.demo.dtos.PostResponseDto;
 import com.cale.demo.exepciones.ErrorResponse;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.services.CategoriaService;
@@ -16,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/categoria")
@@ -42,8 +41,8 @@ public class CategoriaController {
             ),
     })
     @GetMapping
-    public ArrayList<CategoriaModel> obetenerCategorias(){
-        return categoriaService.obetenerCategorias();
+    public List<CategoriaModel> obetenerCategorias(){
+        return categoriaService.obtenerCategorias();
     }
 
     @Operation(
@@ -85,7 +84,7 @@ public class CategoriaController {
             )
     })
     @GetMapping(path = "/{id}")
-    public Optional<CategoriaModel> obtenerCategoriaPorID(@PathVariable("id") Long id){
+    public CategoriaModel obtenerCategoriaPorID(@PathVariable("id") Long id){
         return categoriaService.obtenerCategoriaPorID(id);
     }
 

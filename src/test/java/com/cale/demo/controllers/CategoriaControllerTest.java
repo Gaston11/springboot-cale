@@ -1,11 +1,8 @@
 package com.cale.demo.controllers;
 
-import com.cale.demo.dtos.CategoriaRequestDto;
-import com.cale.demo.dtos.ComentarioResponseDto;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.CategoriaModel;
 import com.cale.demo.security.JwtAuthenticationFilter;
-import com.cale.demo.services.AuthService;
 import com.cale.demo.services.CategoriaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -18,12 +15,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,14 +50,14 @@ public class CategoriaControllerTest {
         ArrayList<CategoriaModel> categoriaModels = new ArrayList<>();
         categoriaModels.add(categoriaModel);
 
-        when(categoriaService.obetenerCategorias()).thenReturn(categoriaModels);
+        when(categoriaService.obtenerCategorias()).thenReturn(categoriaModels);
 
         mockMvc.perform(get("/categoria"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].nombre").value("Categoria 1"));
 
-        verify(categoriaService).obetenerCategorias();
+        verify(categoriaService).obtenerCategorias();
     }
 
     @Test
@@ -86,7 +79,7 @@ public class CategoriaControllerTest {
     }
 
     @Test
-    void obtenerCategoriaRetorna400SiNoExiste() throws Exception{
+    void obtenerCategoriaRetorna404SiNoExiste() throws Exception{
 
         when(categoriaService.obtenerCategoriaPorID(99L) ).thenThrow(RecursoNoEncontradoException.class);
 
@@ -107,4 +100,33 @@ public class CategoriaControllerTest {
         verify(categoriaService).eliminarCategoria(1L);
     }
 
+    @Test
+    void eliminarCategoriaRetorna404SiNoExiste() throws Exception{
+        doThrow(new RecursoNoEncontradoException("Categoria no encontrada"))
+                .when(categoriaService)
+                .eliminarCategoria(99L);
+
+        mockMvc.perform(delete("/categoria/{id}", 99L))
+                .andExpect(status().isNotFound());
+
+        verify(categoriaService).eliminarCategoria(99L);
+
+    }
+
+    @Test
+    void obtenerCategoriaPorIdRetorna200() throws Exception {
+        CategoriaModel categoriaModel = new CategoriaModel();
+        categoriaModel.setId(1L);
+        categoriaModel.setNombre("Categoria 1");
+
+        when(categoriaService.obtenerCategoriaPorID(1L))
+                .thenReturn(categoriaModel);
+
+        mockMvc.perform(get("/categoria/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nombre").value("Categoria 1"));
+
+        verify(categoriaService).obtenerCategoriaPorID(1L);
+    }
 }

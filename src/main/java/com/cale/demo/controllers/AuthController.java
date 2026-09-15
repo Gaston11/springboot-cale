@@ -4,9 +4,6 @@ import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.LoginResponse;
 import com.cale.demo.dtos.RegisterRequest;
 import com.cale.demo.exepciones.ErrorResponse;
-import com.cale.demo.exepciones.NoAutorizadoException;
-import com.cale.demo.exepciones.OperacionInvalidaException;
-import com.cale.demo.exepciones.RecursoYaExisteException;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -89,7 +86,7 @@ public class AuthController {
             )
     })
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest loginRequest) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 }
