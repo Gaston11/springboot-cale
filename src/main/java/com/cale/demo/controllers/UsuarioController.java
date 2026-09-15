@@ -64,7 +64,7 @@ public class UsuarioController {
             )
     })
     @GetMapping(path = "/{id}")
-    public UsuarioModel obtenerUsuarioPorId(@PathVariable("id") Long id){
+    public UsuarioResponseDto obtenerUsuarioPorId(@PathVariable("id") Long id){
         return usuarioService.obtenerPorId(id);
     }
 

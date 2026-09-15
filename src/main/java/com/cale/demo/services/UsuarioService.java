@@ -55,9 +55,10 @@ public class UsuarioService {
         return usuarioRepository.save(usuarioModel);
     }
 
-    public UsuarioModel obtenerPorId(Long id) {
-        return usuarioRepository.findById(id)
+    public UsuarioResponseDto obtenerPorId(Long id) {
+        UsuarioModel usuarioModel = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado con ID: " + id));
+        return convertirAUsuarioDto(usuarioModel);
     }
 
     public List<UsuarioResponseDto> obtenerUsuariosPorPrioridad(Integer prioridad) {
@@ -92,9 +93,10 @@ public class UsuarioService {
             throw new NoAutorizadoException("No puedes editar este usuario");
         }
 
-        UsuarioModel usuario = this.obtenerPorId(id);
-        usuario.setPrioridad(prioridad.getPrioridad());
-        return this.convertirAUsuarioDto(usuarioRepository.save(usuario));
+        UsuarioModel usuarioModel = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado con ID: " + id));
+        usuarioModel.setPrioridad(prioridad.getPrioridad());
+        return this.convertirAUsuarioDto(usuarioRepository.save(usuarioModel));
 
     }
 }

@@ -90,7 +90,8 @@ public class PostService {
         usuarioResponseDto.setId(postModel.getUsuario().getId());
         postResponseDto.setUsuario(usuarioResponseDto);
         postResponseDto.setFechaCreacion(postModel.getFechaCreacion());
-        postResponseDto.setFechaActualizacion(postModel.getFechaModificacion());      postResponseDto.setNombreCategorias(postModel.getCategorias()
+        postResponseDto.setFechaActualizacion(postModel.getFechaModificacion());
+        postResponseDto.setNombreCategorias(postModel.getCategorias()
         .stream().map(c -> c.getNombre()).collect(Collectors.toSet()));
 
         return postResponseDto;
