@@ -1,7 +1,10 @@
 package com.cale.demo.services;
 
+import com.cale.demo.exepciones.NoAutorizadoException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.CategoriaModel;
+import com.cale.demo.models.Rol;
+import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.CategoriaRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,14 +17,15 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoriaServiceTest {
 
     @Mock
     private CategoriaRepository categoriaRepository;
+    @Mock
+    private CurrentUserService currentUserService;
 
     @InjectMocks
     private CategoriaService categoriaService;
@@ -75,7 +79,11 @@ public class CategoriaServiceTest {
     }
 
     @Test
-    public void eliminarCategoriaNoDebeLanzarExcepcionSiExiste() {
+    public void eliminarCategoriaPorAdminNoDebeLanzarExcepcionSiExiste() {
+
+        UsuarioModel usuarioModel = new UsuarioModel();
+        usuarioModel.setId(1L);
+        usuarioModel.setRol(Rol.ADMIN);
 
         CategoriaModel categoriaModel = new CategoriaModel();
         categoriaModel.setId(1L);
@@ -83,6 +91,7 @@ public class CategoriaServiceTest {
 
         when(categoriaRepository.findById(1L)).
                 thenReturn(Optional.of(categoriaModel));
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioModel);
 
         Assertions.assertDoesNotThrow(() -> categoriaService.eliminarCategoria(1L));
 
@@ -91,13 +100,18 @@ public class CategoriaServiceTest {
     }
 
     @Test
-    public void crearCategoriaDebeGuardarCategoria() {
+    public void crearCategoriaPorAdminDebeGuardarCategoria() {
+
+        UsuarioModel usuarioModel = new UsuarioModel();
+        usuarioModel.setId(1L);
+        usuarioModel.setRol(Rol.ADMIN);
 
         CategoriaModel categoriaModel = new CategoriaModel();
         categoriaModel.setId(1L);
         categoriaModel.setNombre("Categoria 1");
 
         when(categoriaRepository.save(categoriaModel)).thenReturn(categoriaModel);
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioModel);
 
         CategoriaModel resultado =
                 categoriaService.guardarCategoria(categoriaModel);
@@ -108,5 +122,47 @@ public class CategoriaServiceTest {
 
         verify(categoriaRepository).save(categoriaModel);
     }
+
+    @Test
+    public void eliminarCategoriaPorUserDebeLanzarExcepcion() {
+
+        UsuarioModel usuarioModel = new UsuarioModel();
+        usuarioModel.setId(1L);
+        usuarioModel.setRol(Rol.USER);
+
+        CategoriaModel categoriaModel = new CategoriaModel();
+        categoriaModel.setId(1L);
+        categoriaModel.setNombre("Categoria 1");
+
+        when(categoriaRepository.findById(1L)).
+                thenReturn(Optional.of(categoriaModel));
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioModel);
+
+        Assertions.assertThrows(NoAutorizadoException.class,
+                () -> categoriaService.eliminarCategoria(1L));
+
+        verify(categoriaRepository).findById(1L);
+        verify(categoriaRepository, never()).deleteById(1L);
+    }
+
+    @Test
+    public void crearCategoriaPorUserDebeLanzarExcepcion() {
+
+        UsuarioModel usuarioModel = new UsuarioModel();
+        usuarioModel.setId(1L);
+        usuarioModel.setRol(Rol.USER);
+
+        CategoriaModel categoriaModel = new CategoriaModel();
+        categoriaModel.setId(1L);
+        categoriaModel.setNombre("Categoria 1");
+
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioModel);
+        Assertions.assertThrows(NoAutorizadoException.class,
+                ()-> categoriaService.guardarCategoria(categoriaModel));
+
+        verify(categoriaRepository, never()).save(categoriaModel);
+    }
+
+
 
 }

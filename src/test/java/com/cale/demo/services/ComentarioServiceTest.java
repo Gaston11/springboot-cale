@@ -23,8 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
@@ -138,5 +137,46 @@ public class ComentarioServiceTest {
                 RecursoNoEncontradoException.class,
                 () -> comentarioService.editarComentario(999L, comentarioRequestDto)
         );
+    }
+
+    @Test
+    void usuarioNoPuedeEliminarComentarioAjeno(){
+        UsuarioModel usuarioAjeno = new UsuarioModel();
+        usuarioAjeno.setId(8L);
+
+        UsuarioModel usuarioModel = new UsuarioModel();
+        usuarioModel.setId(2L);
+
+        ComentarioModel comentarioModel = new ComentarioModel();
+        comentarioModel.setComentario("Comentario");
+        comentarioModel.setId(1L);
+        comentarioModel.setUsuario(usuarioModel);
+
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioAjeno);
+        when(comentarioRepository.findById(1L)).thenReturn(Optional.of(comentarioModel));
+
+        Assertions.assertThrows(NoAutorizadoException.class, ()-> comentarioService.eliminarComentario(1L));
+        verify(comentarioRepository,never()).deleteById(1L);
+    }
+
+    @Test
+    void adminPuedeEliminarComentarioAjeno(){
+        UsuarioModel admin = new UsuarioModel();
+        admin.setId(8L);
+        admin.setRol(Rol.ADMIN);
+
+        UsuarioModel usuarioModel = new UsuarioModel();
+        usuarioModel.setId(2L);
+
+        ComentarioModel comentarioModel = new ComentarioModel();
+        comentarioModel.setComentario("Comentario");
+        comentarioModel.setId(1L);
+        comentarioModel.setUsuario(usuarioModel);
+
+        when(currentUserService.getCurrentUser()).thenReturn(admin);
+        when(comentarioRepository.findById(1L)).thenReturn(Optional.of(comentarioModel));
+
+        Assertions.assertDoesNotThrow(()-> comentarioService.eliminarComentario(1L));
+        verify(comentarioRepository).deleteById(1L);
     }
 }

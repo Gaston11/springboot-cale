@@ -29,6 +29,10 @@ public class CategoriaService {
     }
 
     public CategoriaModel guardarCategoria(CategoriaModel categoriaModel) {
+        UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
+        if (usuarioModel.getRol() != Rol.ADMIN){
+            throw new NoAutorizadoException("No puedes crear categoria");
+        }
         return categoriaRepository.save(categoriaModel);
     }
 
@@ -40,6 +44,10 @@ public class CategoriaService {
 
     public void eliminarCategoria(Long id) {
         this.obtenerCategoriaPorID(id);
+        UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
+        if (usuarioModel.getRol() != Rol.ADMIN){
+            throw new NoAutorizadoException("No puedes eliminar categoria");
+        }
         categoriaRepository.deleteById(id);
     }
 }
