@@ -8,18 +8,13 @@ import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.Rol;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UsuarioService {
-    @Autowired //para no crear la instancia nueva
     private final UsuarioRepository usuarioRepository;
     private final CurrentUserService currentUserService;
 
@@ -51,10 +46,6 @@ public class UsuarioService {
         return usuarioResponseDto;
     }
 
-    public UsuarioModel guardarUsuario(UsuarioModel usuarioModel) {
-        return usuarioRepository.save(usuarioModel);
-    }
-
     public UsuarioResponseDto obtenerPorId(Long id) {
         UsuarioModel usuarioModel = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado con ID: " + id));
@@ -62,26 +53,28 @@ public class UsuarioService {
     }
 
     public List<UsuarioResponseDto> obtenerUsuariosPorPrioridad(Integer prioridad) {
-        List<UsuarioModel> usuarioModels = Optional.of( usuarioRepository.findByPrioridad(prioridad))
-                .filter(ArrayList -> !ArrayList.isEmpty())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario/s no encontrado con prioridad: " + prioridad));
+        List<UsuarioModel> usuarios = usuarioRepository.findByPrioridad(prioridad);
 
-        List<UsuarioResponseDto>  usuarioResponseDtos = new ArrayList<>();
-        usuarioModels.forEach(usuarioModel -> {
-            UsuarioResponseDto usuarioResponseDto = convertirAUsuarioDto(usuarioModel);
-            usuarioResponseDtos.add(usuarioResponseDto);
-        });
-        return usuarioResponseDtos;
+        if (usuarios.isEmpty()) {
+            throw new RecursoNoEncontradoException("No se encontraron usuarios con esa prioridad");
+        }
+
+        return usuarios.stream()
+                .map(this::convertirAUsuarioDto)
+                .toList();
     }
 
     public void eliminarUsuario(Long id) {
         UsuarioModel usuarioActual = this.currentUserService.getCurrentUser();
 
-        if (usuarioActual.getRol() != Rol.ADMIN ) {
+        if (usuarioActual.getRol() != Rol.ADMIN) {
             throw new NoAutorizadoException("No puedes eliminar este usuario");
         }
 
-        this.obtenerPorId(id);
+        if (!usuarioRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("Usuario no encontrado con ID: " + id);
+        }
+
         usuarioRepository.deleteById(id);
 
     }

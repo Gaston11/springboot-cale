@@ -8,11 +8,12 @@ import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
+@Service
 public class CategoriaService {
 
     @Autowired

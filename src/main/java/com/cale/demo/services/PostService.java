@@ -8,13 +8,9 @@ import com.cale.demo.models.*;
 import com.cale.demo.repositories.CategoriaRepository;
 import com.cale.demo.repositories.ComentarioRepository;
 import com.cale.demo.repositories.PostRepository;
-import com.cale.demo.repositories.UsuarioRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,13 +19,12 @@ import java.util.stream.Collectors;
 @Service
 public class PostService {
 
-    @Autowired
     private final PostRepository postRepository;
     private final CategoriaRepository categoriaRepository;
     private final CurrentUserService currentUserService;
     private final ComentarioRepository comentarioRepository;
 
-    public PostService(UsuarioRepository usuarioRepository, PostRepository postRepository, CategoriaRepository categoriaRepository, CurrentUserService currentUserService, ComentarioRepository comentarioRepository) {
+    public PostService(PostRepository postRepository, CategoriaRepository categoriaRepository, CurrentUserService currentUserService, ComentarioRepository comentarioRepository) {
         this.postRepository = postRepository;
         this.categoriaRepository = categoriaRepository;
         this.currentUserService = currentUserService;
@@ -37,14 +32,14 @@ public class PostService {
     }
 
     public PageResponse<PostResponseDto> obtenerPosts(Pageable pageable, String titulo, Long usuarioId) {
-        Page<PostModel> pagina = postRepository.findAll(pageable);
+        Page<PostModel> pagina;
 
-        if(titulo != null && !titulo.isBlank()){
-            pagina = postRepository.findByTituloContainingIgnoreCase(pageable,titulo);
-        }
-
-        if(usuarioId != null){
-            pagina = postRepository.findByUsuarioId(pageable,usuarioId);
+        if (titulo != null && !titulo.isBlank()) {
+            pagina = postRepository.findByTituloContainingIgnoreCase(pageable, titulo);
+        } else if (usuarioId != null) {
+            pagina = postRepository.findByUsuarioId(pageable, usuarioId);
+        } else {
+            pagina = postRepository.findAll(pageable);
         }
 
         return new PageResponse<>(
@@ -70,14 +65,17 @@ public class PostService {
             throw new OperacionInvalidaException("El post debe tener al menos una categoria");
         }
 
-        Set<CategoriaModel> categorias = new HashSet<>((Collection) categoriaRepository.findAllById(categoriaModelSet));
-        if (categorias.isEmpty()) {
-            throw new RecursoNoEncontradoException("No se encuentran esas categorias");
-        }
+        Set<CategoriaModel> categorias = categoriaModelSet.stream()
+                .map(this::buscarCategoriaPorId)
+                .collect(Collectors.toSet());
 
         postModel.setCategorias(categorias);
-
         return convertirADto(postRepository.save(postModel));
+    }
+
+    private CategoriaModel buscarCategoriaPorId(Long id){
+       return categoriaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe categoria con el id " + id));
     }
 
     private PostResponseDto convertirADto(PostModel postModel) {
@@ -91,8 +89,12 @@ public class PostService {
         postResponseDto.setUsuario(usuarioResponseDto);
         postResponseDto.setFechaCreacion(postModel.getFechaCreacion());
         postResponseDto.setFechaActualizacion(postModel.getFechaModificacion());
-        postResponseDto.setNombreCategorias(postModel.getCategorias()
-        .stream().map(c -> c.getNombre()).collect(Collectors.toSet()));
+        postResponseDto.setNombreCategorias(
+                postModel.getCategorias()
+                        .stream()
+                        .map(CategoriaModel::getNombre)
+                        .collect(Collectors.toSet())
+        );
 
         return postResponseDto;
     }
@@ -112,7 +114,7 @@ public class PostService {
 
         if ((!postActual.getUsuario().getId().equals(usuarioModel.getId()))
                 && (usuarioModel.getRol() != Rol.ADMIN) ) {
-            throw new NoAutorizadoException("No puedes editar este post");
+            throw new NoAutorizadoException("No puedes eliminar este post");
         }
 
         postRepository.deleteById(id);
@@ -128,12 +130,18 @@ public class PostService {
             throw new NoAutorizadoException("No puedes editar este post");
         }
 
+        if (postRequestDto.getCategoriaIds().isEmpty()) {
+            throw new OperacionInvalidaException(
+                    "El post debe tener al menos una categoria"
+            );
+        }
+
         postActual.setTitulo(postRequestDto.getTitulo());
         postActual.setDescripcion(postRequestDto.getDescripcion());
-        Set<CategoriaModel> categoriaModels = postRequestDto.getCategoriaIds().stream().
-                map(idCategoria -> categoriaRepository.findById(idCategoria).
-                        orElseThrow(() -> new RecursoNoEncontradoException("Categoria no encontrada: " + idCategoria))).
-                collect(Collectors.toSet());
+        Set<CategoriaModel> categoriaModels = postRequestDto.getCategoriaIds().stream()
+                .map(this::buscarCategoriaPorId)
+                .collect(Collectors.toSet());
+
         postActual.setCategorias(categoriaModels);
 
         return convertirADto(postRepository.save(postActual));
@@ -162,12 +170,14 @@ public class PostService {
 
         obtenerPostModelPorID(id);
 
-        Set<ComentarioModel> comentarioModelSet = new HashSet<>();
-        comentarioModelSet = this.comentarioRepository.findByPostId(id);
+        Set<ComentarioModel> comentarioModelSet =
+                comentarioRepository.findByPostId(id);
         for (ComentarioModel comentarioModel : comentarioModelSet) {
             ComentarioResponseDto comentarioResponseDto = new ComentarioResponseDto();
             comentarioResponseDto.setComentario(comentarioModel.getComentario());
             comentarioResponseDto.setId(comentarioModel.getId());
+            comentarioResponseDto.setFechaCreacion(comentarioModel.getFechaCreacion());
+            comentarioResponseDto.setFechaActualizacion(comentarioModel.getFechaModificacion());
             comentarioResponseDtos.add(comentarioResponseDto);
         }
         return comentarioResponseDtos;

@@ -2,6 +2,7 @@ package com.cale.demo.services;
 
 import com.cale.demo.dtos.*;
 import com.cale.demo.exepciones.NoAutorizadoException;
+import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
 import com.cale.demo.models.*;
 import com.cale.demo.repositories.CategoriaRepository;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -69,9 +71,9 @@ public class PostServiceTest {
         postNuevo.setUsuario(usuarioActual);
         postNuevo.setCategorias(Set.of(categoria));
 
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
         when(postRepository.save(any(PostModel.class))).thenReturn(postNuevo);
         when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
-        when(categoriaRepository.findAllById(Set.of(1L))).thenReturn(List.of(categoria));
 
         ArgumentCaptor<PostModel> captor =
                 ArgumentCaptor.forClass(PostModel.class);
@@ -85,8 +87,6 @@ public class PostServiceTest {
         Assertions.assertEquals( "Descripcion",postModel.getDescripcion());
         Assertions.assertEquals(usuarioActual ,postModel.getUsuario());
         Assertions.assertEquals(Set.of(categoria),postModel.getCategorias());
-
-
     }
 
     @Test
@@ -220,8 +220,6 @@ public class PostServiceTest {
         postRequestDto.setCategoriaIds(Set.of(99L));
 
         when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
-        when(categoriaRepository.findAllById(postRequestDto.getCategoriaIds())).thenReturn(List.of());
-
         Assertions.assertThrows(RecursoNoEncontradoException.class,
                 ()-> postService.guardarPost(postRequestDto));
     }
@@ -254,6 +252,33 @@ public class PostServiceTest {
 
         Assertions.assertThrows(RecursoNoEncontradoException.class,
                 ()-> postService.actualizarPost(postRequestDto,10L));
+    }
+
+    @Test
+    void actualizarPostDebeLanzarExcepcionSiNoTieneCategorias() {
+
+        UsuarioModel usuarioActual = new UsuarioModel();
+        usuarioActual.setId(1L);
+        usuarioActual.setRol(Rol.USER);
+
+        PostModel post = new PostModel();
+        post.setId(10L);
+        post.setUsuario(usuarioActual);
+
+        PostRequestDto postRequestDto = new PostRequestDto();
+        postRequestDto.setTitulo("Titulo");
+        postRequestDto.setDescripcion("Descripcion");
+        postRequestDto.setCategoriaIds(Set.of());
+
+        when(currentUserService.getCurrentUser()).thenReturn(usuarioActual);
+        when(postRepository.findById(10L)).thenReturn(Optional.of(post));
+
+        Assertions.assertThrows(
+                OperacionInvalidaException.class,
+                () -> postService.actualizarPost(postRequestDto, 10L)
+        );
+
+        verify(postRepository, never()).save(any(PostModel.class));
     }
 
     @Test
@@ -363,7 +388,6 @@ public class PostServiceTest {
         Page<PostModel> pagina =
                 new PageImpl<>(List.of(post), pageable, 1);
 
-        when(postRepository.findAll(pageable)).thenReturn(pagina);
         when(postRepository.findByTituloContainingIgnoreCase(pageable, "titulo"))
                 .thenReturn(pagina);
 
@@ -371,7 +395,6 @@ public class PostServiceTest {
                 () -> postService.obtenerPosts(pageable, "titulo", null)
         );
 
-        verify(postRepository).findAll(pageable);
         verify(postRepository).findByTituloContainingIgnoreCase(pageable, "titulo");
         verify(postRepository, never()).findByUsuarioId(any(Pageable.class), anyLong());
     }
@@ -394,7 +417,6 @@ public class PostServiceTest {
         Page<PostModel> pagina =
                 new PageImpl<>(List.of(post), pageable, 1);
 
-        when(postRepository.findAll(pageable)).thenReturn(pagina);
         when(postRepository.findByUsuarioId(pageable, 1L))
                 .thenReturn(pagina);
 
@@ -402,7 +424,6 @@ public class PostServiceTest {
                 () -> postService.obtenerPosts(pageable, null, 1L)
         );
 
-        verify(postRepository).findAll(pageable);
         verify(postRepository).findByUsuarioId(pageable, 1L);
         verify(postRepository, never()).findByTituloContainingIgnoreCase(any(Pageable.class), anyString());
     }
@@ -529,6 +550,12 @@ public class PostServiceTest {
         comentarioGuardado.setUsuario(usuarioActual);
         comentarioGuardado.setPost(post);
 
+        LocalDateTime fechaCreacion = LocalDateTime.of(2026, 6, 23, 15, 30);
+        LocalDateTime fechaModificacion = LocalDateTime.of(2026, 6, 24, 10, 15);
+
+        comentarioGuardado.setFechaCreacion(fechaCreacion);
+        comentarioGuardado.setFechaModificacion(fechaModificacion);
+
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
         when(comentarioRepository.findByPostId(1L)).thenReturn(Set.of(comentarioGuardado));
 
@@ -536,6 +563,8 @@ public class PostServiceTest {
                 postService.obtenerComentarios(1L);
 
         Assertions.assertEquals("Comentario 1", resultado.get(0).getComentario());
+        Assertions.assertEquals(fechaCreacion, resultado.get(0).getFechaCreacion());
+        Assertions.assertEquals(fechaModificacion, resultado.get(0).getFechaActualizacion());
     }
 
     @Test
@@ -550,6 +579,41 @@ public class PostServiceTest {
 
         Assertions.assertThrows(RecursoNoEncontradoException.class,
                 ()-> postService.obtenerComentarios(99L));
+    }
+
+    @Test
+    void obtenerPostsDebeDarPrioridadAlFiltroPorTitulo() {
+
+        Pageable pageable = PageRequest.of(0, 1);
+
+        PostModel post = new PostModel();
+        post.setId(1L);
+        post.setTitulo("titulo");
+
+        UsuarioModel usuario = new UsuarioModel();
+        usuario.setId(1L);
+        usuario.setNombre("Usuario");
+        post.setUsuario(usuario);
+
+        Page<PostModel> pagina =
+                new PageImpl<>(List.of(post), pageable, 1);
+
+        when(postRepository.findByTituloContainingIgnoreCase(pageable, "titulo"))
+                .thenReturn(pagina);
+
+        PageResponse<PostResponseDto> resultado =
+                postService.obtenerPosts(pageable, "titulo", 1L);
+
+        Assertions.assertEquals(1, resultado.getContenido().size());
+
+        verify(postRepository)
+                .findByTituloContainingIgnoreCase(pageable, "titulo");
+
+        verify(postRepository, never())
+                .findByUsuarioId(any(Pageable.class), anyLong());
+
+        verify(postRepository, never())
+                .findAll(any(Pageable.class));
     }
 
 }

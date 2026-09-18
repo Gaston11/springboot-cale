@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<UsuarioModel, Long> {
-    public abstract List<UsuarioModel> findByPrioridad(Integer prioridad);
+    List<UsuarioModel> findByPrioridad(Integer prioridad);
 
     Optional<UsuarioModel> findByEmail(String email);
 }
