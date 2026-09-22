@@ -3,6 +3,7 @@ package com.cale.demo.controllers;
 import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.LoginResponse;
 import com.cale.demo.dtos.RegisterRequest;
+import com.cale.demo.dtos.UsuarioResponseDto;
 import com.cale.demo.exepciones.ErrorResponse;
 import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.services.AuthService;
@@ -54,7 +55,7 @@ public class AuthController {
             )
     })
     @PostMapping("/register")
-    public UsuarioModel register(@Valid @RequestBody RegisterRequest registerRequest) {
+    public UsuarioResponseDto register(@Valid @RequestBody RegisterRequest registerRequest) {
         return authService.register(registerRequest);
     }
 
