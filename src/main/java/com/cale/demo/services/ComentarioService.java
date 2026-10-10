@@ -29,7 +29,7 @@ public class ComentarioService {
         comentarioModel = obtenerComentarioModelPorID(idComentario);
         UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
 
-        if ((comentarioModel.getUsuario().getId() != usuarioModel.getId()) && (usuarioModel.getRol() != Rol.ADMIN)) {
+        if ((!comentarioModel.getUsuario().getId().equals(usuarioModel.getId())) && (usuarioModel.getRol() != Rol.ADMIN)) {
             throw new NoAutorizadoException("El usuario no tiene permiso para editar este comentario");
         }
 
@@ -45,7 +45,7 @@ public class ComentarioService {
         ComentarioModel comentarioModel = this.obtenerComentarioModelPorID(id);
         UsuarioModel usuarioModel = this.currentUserService.getCurrentUser();
 
-        if ((comentarioModel.getUsuario().getId() != usuarioModel.getId()) && (usuarioModel.getRol() != Rol.ADMIN)) {
+        if ((!comentarioModel.getUsuario().getId().equals(usuarioModel.getId())) && (usuarioModel.getRol() != Rol.ADMIN)) {
             throw new NoAutorizadoException("El usuario no tiene permiso para editar este comentario");
         }
         comentarioRepository.deleteById(id);

@@ -3,6 +3,7 @@ package com.cale.demo.services;
 import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.LoginResponse;
 import com.cale.demo.dtos.RegisterRequest;
+import com.cale.demo.dtos.UsuarioResponseDto;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.exepciones.OperacionInvalidaException;
 import com.cale.demo.exepciones.RecursoNoEncontradoException;
@@ -30,7 +31,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public UsuarioModel register(RegisterRequest registerRequest) {
+    public UsuarioResponseDto register(RegisterRequest registerRequest) {
         UsuarioModel usuarioModel = new UsuarioModel();
         String email = registerRequest.getEmail();
         if(this.esEmailRepetido(email)){
@@ -46,7 +47,16 @@ public class AuthService {
 
         usuarioModel.setRol(Rol.USER);
 
-        return usuarioRepository.save(usuarioModel);
+        return convertirUsuarioADto(usuarioRepository.save(usuarioModel));
+    }
+
+    private UsuarioResponseDto convertirUsuarioADto(UsuarioModel usuarioModel) {
+        UsuarioResponseDto usuarioResponseDto = new UsuarioResponseDto();
+        usuarioResponseDto.setId(usuarioModel.getId());
+        usuarioResponseDto.setNombre(usuarioModel.getNombre());
+        usuarioResponseDto.setFechaCreacion(usuarioModel.getFechaCreacion());
+        usuarioResponseDto.setFechaActualizacion(usuarioModel.getFechaModificacion());
+        return usuarioResponseDto;
     }
 
     public LoginResponse login(LoginRequest loginRequest){

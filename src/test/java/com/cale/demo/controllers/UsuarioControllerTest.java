@@ -51,12 +51,12 @@ public class UsuarioControllerTest {
 
     @Test
     void obtenerUsuarioPorIdNoDebeLanzarExepcion() throws Exception {
-        UsuarioModel usuarioModel = new UsuarioModel();
-        usuarioModel.setId(1L);
-        usuarioModel.setPrioridad(3);
-        usuarioModel.setNombre("Usuario");
+        UsuarioResponseDto usuarioResponseDto = new UsuarioResponseDto();
+        usuarioResponseDto.setId(1L);
+        usuarioResponseDto.setNombre("Usuario");
 
-        when(usuarioService.obtenerPorId(1L)).thenReturn(usuarioModel);
+
+        when(usuarioService.obtenerPorId(1L)).thenReturn(usuarioResponseDto);
 
         mockMvc.perform(get("/usuario/1"))
                 .andExpect(status().isOk())

@@ -121,9 +121,9 @@ public class UsuarioServiceTest {
         usuarioModel.setId(1L);
 
         when(currentUserService.getCurrentUser()).thenReturn(usuarioAdmin);
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuarioModel));
+        when(usuarioRepository.existsById(1L)).thenReturn(Boolean.TRUE);
         Assertions.assertDoesNotThrow(() -> usuarioService.eliminarUsuario(1L));
-        verify(usuarioRepository).findById(1L);
+        verify(usuarioRepository).existsById(1L);
         verify(usuarioRepository).deleteById(1L);
 
     }
@@ -149,9 +149,9 @@ public class UsuarioServiceTest {
         usuarioAdmin.setRol(Rol.ADMIN);
 
         when(currentUserService.getCurrentUser()).thenReturn(usuarioAdmin);
-        when(usuarioRepository.findById(99L)).thenReturn(Optional.empty());
+        when(usuarioRepository.existsById(99L)).thenReturn(Boolean.FALSE);
         assertThrows(RecursoNoEncontradoException.class,() -> usuarioService.eliminarUsuario(99L));
-        verify(usuarioRepository).findById(99L);
+        verify(usuarioRepository).existsById(99L);
         verify(usuarioRepository,never()).deleteById(99L);
 
     }
@@ -232,24 +232,5 @@ public class UsuarioServiceTest {
 
         Assertions.assertEquals(fechaCreacion, dto.getFechaCreacion());
         Assertions.assertEquals(fechaModificacion, dto.getFechaActualizacion());
-    }
-
-    @Test
-    void guardarUsuarioDebeGuardarUsuario() {
-
-        UsuarioModel usuario = new UsuarioModel();
-        usuario.setId(1L);
-        usuario.setNombre("nombre");
-        usuario.setApellido("apellido");
-        usuario.setEmail("email@email.com");
-        usuario.setPrioridad(3);
-        usuario.setPassword("password");
-
-        when(usuarioRepository.save(usuario)).thenReturn(usuario);
-
-        UsuarioModel resultado = usuarioService.guardarUsuario(usuario);
-
-        Assertions.assertEquals(usuario, resultado);
-        verify(usuarioRepository).save(usuario);
     }
 }

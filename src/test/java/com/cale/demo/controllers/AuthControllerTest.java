@@ -3,6 +3,7 @@ package com.cale.demo.controllers;
 import com.cale.demo.dtos.LoginRequest;
 import com.cale.demo.dtos.LoginResponse;
 import com.cale.demo.dtos.RegisterRequest;
+import com.cale.demo.dtos.UsuarioResponseDto;
 import com.cale.demo.exepciones.CredencialesInvalidasException;
 import com.cale.demo.exepciones.GlobalExceptionHandler;
 import com.cale.demo.exepciones.OperacionInvalidaException;
@@ -21,6 +22,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.HttpClientErrorException;
+
+import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -56,12 +59,12 @@ public class AuthControllerTest {
         registerRequest.setEmail("prueba@test.com");
         registerRequest.setPassword("123456");
 
-        UsuarioModel user = new UsuarioModel();
+        UsuarioResponseDto user = new UsuarioResponseDto();
         user.setNombre("Cale");
-        user.setApellido("Cale");
-        user.setPrioridad(1);
-        user.setRol(Rol.USER);
-        user.setEmail("prueba@test.com");
+        LocalDateTime fechaCreacion = LocalDateTime.of(2026, 6, 23, 15, 30);
+        LocalDateTime fechaModificacion = LocalDateTime.of(2026, 6, 24, 10, 15);
+        user.setFechaCreacion(fechaCreacion);
+        user.setFechaActualizacion(fechaModificacion);
         user.setId(1L);
 
         when(authService.register(any(RegisterRequest.class))).thenReturn(user);
@@ -72,8 +75,8 @@ public class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.nombre").value("Cale"))
-                .andExpect(jsonPath("$.apellido").value("Cale"))
-                .andExpect(jsonPath("$.email").value("prueba@test.com"));
+                .andExpect(jsonPath("$.fechaCreacion").value("2026-06-23T15:30:00"))
+                .andExpect(jsonPath("$.fechaActualizacion").value("2026-06-24T10:15:00"));
 
 
     }

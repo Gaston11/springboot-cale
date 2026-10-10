@@ -1,8 +1,10 @@
 package com.cale.demo.integrationTest;
 
 import com.cale.demo.dtos.PrioridadRequest;
+import com.cale.demo.models.UsuarioModel;
 import com.cale.demo.repositories.UsuarioRepository;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,7 +52,7 @@ public class UsuarioIntegrationTest extends IntegrationTestBase {
         mockMvc.perform(get("/usuario/{id}",id)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("demo@cale.com"));
+                .andExpect(jsonPath("$.nombre").value("Usuario"));
     }
 
     @Test
@@ -98,8 +100,7 @@ public class UsuarioIntegrationTest extends IntegrationTestBase {
 
         mockMvc.perform(get("/usuario/{id}",id)
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.prioridad").value(10));
+                .andExpect(status().isOk());
 
         mockMvc.perform(patch("/usuario/{id}/prioridad",id)
                         .header("Authorization", "Bearer " + token)
@@ -109,8 +110,12 @@ public class UsuarioIntegrationTest extends IntegrationTestBase {
 
         mockMvc.perform(get("/usuario/{id}",id)
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.prioridad").value(1));
+                .andExpect(status().isOk());
+
+        UsuarioModel usuarioActualizado =
+                usuarioRepository.findById(id).orElseThrow();
+
+        Assertions.assertEquals(1, usuarioActualizado.getPrioridad());
     }
 
     @Test
